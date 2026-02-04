@@ -36,6 +36,40 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AuthToken>> signUp({
+    required String email,
+    required String password,
+    required String businessNumber,
+    required String phoneNumber,
+    required String nickname,
+  }) async {
+    try {
+      final tokenModel = await remoteDataSource.signUp(
+        email: email,
+        password: password,
+        businessNumber: businessNumber,
+        phoneNumber: phoneNumber,
+        nickname: nickname,
+      );
+      await tokenStorage.saveTokens(
+        accessToken: tokenModel.accessToken,
+        refreshToken: tokenModel.refreshToken,
+      );
+      return Right(tokenModel);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        return const Left(ValidationFailure('이미 등록된 정보입니다'));
+      }
+      if (e.response?.statusCode == 400) {
+        return const Left(ValidationFailure('입력 정보를 확인해주세요'));
+      }
+      return Left(ServerFailure(e.message ?? '서버 오류가 발생했습니다'));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, AuthToken>> refreshToken(String refreshToken) async {
     try {
       final tokenModel = await remoteDataSource.refreshToken(refreshToken);
