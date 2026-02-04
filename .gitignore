@@ -46,3 +46,8 @@ app.*.map.json
 
 *.md
 .claude
+
+# Environment
+.env.dev
+.env.local
+.env.prod
