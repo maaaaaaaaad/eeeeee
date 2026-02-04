@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
 class AppTheme {
-  static const double _buttonRadius = 12.0;
+  static const double _buttonRadius = 16.0;
 
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: AppColors.pastelPink,
       brightness: Brightness.light,
-    ).copyWith(primary: AppColors.primary);
+    ).copyWith(primary: AppColors.pastelPink);
 
     final buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(_buttonRadius),
@@ -17,7 +17,9 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Esamanru',
       colorScheme: colorScheme,
+      textTheme: const TextTheme().apply(fontFamily: 'Esamanru'),
       appBarTheme: const AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
