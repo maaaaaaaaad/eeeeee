@@ -136,16 +136,18 @@ class _SignUpStep3State extends ConsumerState<SignUpStep3> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                helperText: '2~8자, 공백 불가',
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return '닉네임을 입력해주세요';
                 }
-                if (value.length < 2) {
-                  return '닉네임은 2자 이상이어야 합니다';
+                final trimmed = value.trim();
+                if (trimmed.length < 2 || trimmed.length > 8) {
+                  return '닉네임은 2~8자여야 합니다';
                 }
-                if (value.length > 20) {
-                  return '닉네임은 20자 이하여야 합니다';
+                if (trimmed.contains(' ')) {
+                  return '닉네임에 공백을 포함할 수 없습니다';
                 }
                 return null;
               },
