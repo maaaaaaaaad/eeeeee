@@ -15,7 +15,10 @@ final tokenStorageProvider = Provider<SecureTokenStorage>((ref) {
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
-  final authInterceptor = AuthInterceptor(tokenProvider: tokenStorage);
+  final authInterceptor = AuthInterceptor(
+    tokenProvider: tokenStorage,
+    baseUrl: EnvConfig.apiBaseUrl,
+  );
   return ApiClient(
     baseUrl: EnvConfig.apiBaseUrl,
     authInterceptor: authInterceptor,
