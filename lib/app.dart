@@ -3,6 +3,7 @@ import 'package:mobile_owner/config/theme.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/splash_page.dart';
+import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registration_page.dart';
 import 'package:mobile_owner/features/home/presentation/pages/home_page.dart';
 
 class OwnerApp extends StatelessWidget {
@@ -20,6 +21,7 @@ class OwnerApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/sign-up': (context) => const SignUpPage(),
         '/home': (context) => const HomePage(),
+        '/shop/register': (context) => const ShopRegistrationPage(),
       },
     );
   }
