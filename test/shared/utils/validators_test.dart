@@ -122,6 +122,102 @@ void main() {
     });
   });
 
+  group('TreatmentNameValidator', () {
+    test('should return error for empty name', () {
+      expect(TreatmentNameValidator.validate(''), isNotNull);
+    });
+
+    test('should return error for whitespace only', () {
+      expect(TreatmentNameValidator.validate('   '), isNotNull);
+    });
+
+    test('should return error for name shorter than 2 characters', () {
+      expect(TreatmentNameValidator.validate('A'), isNotNull);
+    });
+
+    test('should return null for valid name with 2 characters', () {
+      expect(TreatmentNameValidator.validate('AB'), isNull);
+    });
+
+    test('should return null for valid name with 50 characters', () {
+      final name = 'A' * 50;
+      expect(TreatmentNameValidator.validate(name), isNull);
+    });
+
+    test('should return error for name longer than 50 characters', () {
+      final name = 'A' * 51;
+      expect(TreatmentNameValidator.validate(name), isNotNull);
+    });
+  });
+
+  group('PriceValidator', () {
+    test('should return error for empty value', () {
+      expect(PriceValidator.validate(''), isNotNull);
+    });
+
+    test('should return error for non-numeric value', () {
+      expect(PriceValidator.validate('abc'), isNotNull);
+    });
+
+    test('should return null for zero', () {
+      expect(PriceValidator.validate('0'), isNull);
+    });
+
+    test('should return null for positive number', () {
+      expect(PriceValidator.validate('30000'), isNull);
+    });
+
+    test('should return error for negative number', () {
+      expect(PriceValidator.validate('-1'), isNotNull);
+    });
+  });
+
+  group('DurationValidator', () {
+    test('should return error for empty value', () {
+      expect(DurationValidator.validate(''), isNotNull);
+    });
+
+    test('should return error for non-numeric value', () {
+      expect(DurationValidator.validate('abc'), isNotNull);
+    });
+
+    test('should return error for value less than 10', () {
+      expect(DurationValidator.validate('9'), isNotNull);
+    });
+
+    test('should return null for 10 minutes', () {
+      expect(DurationValidator.validate('10'), isNull);
+    });
+
+    test('should return null for 300 minutes', () {
+      expect(DurationValidator.validate('300'), isNull);
+    });
+
+    test('should return error for value greater than 300', () {
+      expect(DurationValidator.validate('301'), isNotNull);
+    });
+  });
+
+  group('DescriptionValidator', () {
+    test('should return null for empty value', () {
+      expect(DescriptionValidator.validate(''), isNull);
+    });
+
+    test('should return null for valid description', () {
+      expect(DescriptionValidator.validate('좋은 시술입니다'), isNull);
+    });
+
+    test('should return null for 500 characters', () {
+      final desc = 'A' * 500;
+      expect(DescriptionValidator.validate(desc), isNull);
+    });
+
+    test('should return error for over 500 characters', () {
+      final desc = 'A' * 501;
+      expect(DescriptionValidator.validate(desc), isNotNull);
+    });
+  });
+
   group('ImageUrlValidator', () {
     test('should return error for empty URL', () {
       expect(ImageUrlValidator.validate(''), isNotNull);
