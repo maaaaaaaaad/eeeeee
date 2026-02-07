@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registration_page.dart';
+import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/home_tab.dart';
+import 'package:mobile_owner/features/home/presentation/widgets/my_shop_tab.dart';
+import 'package:mobile_owner/features/onboarding/presentation/providers/onboarding_provider.dart';
+import 'package:mobile_owner/features/onboarding/presentation/widgets/onboarding_bottom_sheet.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -12,15 +17,18 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 0;
+  bool _onboardingChecked = false;
 
   static const _tabs = [
     HomeTab(),
-    _MyShopPlaceholder(),
+    MyShopTab(),
     _SettingsPlaceholder(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    _checkOnboarding();
+
     return Scaffold(
       body: SafeArea(child: _tabs[_currentIndex]),
       bottomNavigationBar: NavigationBar(
@@ -50,34 +58,47 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
     );
   }
-}
 
-class _MyShopPlaceholder extends StatelessWidget {
-  const _MyShopPlaceholder();
+  void _checkOnboarding() {
+    if (_onboardingChecked) return;
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.store_outlined, size: 48, color: AppColors.textHint),
-          SizedBox(height: 16),
-          Text(
-            '내 샵 관리',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            '준비 중입니다',
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-          ),
-        ],
-      ),
+    final homeState = ref.watch(homeNotifierProvider);
+    if (homeState.status != HomeStatus.loaded) return;
+
+    _onboardingChecked = true;
+
+    final shopsEmpty = !homeState.hasShops;
+    final shouldShow = ref.read(shouldShowOnboardingProvider(shopsEmpty));
+
+    if (shouldShow) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _showOnboardingBottomSheet();
+      });
+    }
+  }
+
+  void _showOnboardingBottomSheet() {
+    final dataSource = ref.read(onboardingLocalDataSourceProvider);
+
+    OnboardingBottomSheet.show(
+      context,
+      onRegisterTap: () {
+        Navigator.pop(context);
+        dataSource.markOnboardingSeen();
+        Navigator.push<bool>(
+          context,
+          MaterialPageRoute(builder: (_) => const ShopRegistrationPage()),
+        ).then((result) {
+          if (result == true) {
+            ref.read(homeNotifierProvider.notifier).refresh();
+          }
+        });
+      },
+      onDismiss: () {
+        Navigator.pop(context);
+        dataSource.markOnboardingSeen();
+      },
     );
   }
 }
