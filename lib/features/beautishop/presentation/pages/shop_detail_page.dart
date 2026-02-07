@@ -7,6 +7,8 @@ import 'package:mobile_owner/features/beautishop/presentation/widgets/category_c
 import 'package:mobile_owner/features/beautishop/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_hours_display.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
+import 'package:mobile_owner/features/treatment/presentation/pages/treatment_list_page.dart';
+import 'package:mobile_owner/features/treatment/presentation/providers/treatment_list_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
 class ShopDetailPage extends ConsumerStatefulWidget {
@@ -24,6 +26,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
     super.initState();
     Future.microtask(() {
       ref.read(shopDetailNotifierProvider(widget.shopId).notifier).loadShop();
+      ref
+          .read(treatmentListNotifierProvider(widget.shopId).notifier)
+          .loadTreatments();
     });
   }
 
@@ -183,6 +188,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         _buildSectionTitle('카테고리'),
         const SizedBox(height: 8),
         CategoryChipList(categories: shop.categories),
+        const SizedBox(height: 20),
+        _buildTreatmentSection(shop),
         const SizedBox(height: 32),
         Row(
           children: [
@@ -223,6 +230,50 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         const SizedBox(height: 20),
       ],
     );
+  }
+
+  Widget _buildTreatmentSection(BeautyShop shop) {
+    final treatmentState =
+        ref.watch(treatmentListNotifierProvider(widget.shopId));
+    final count = treatmentState.treatments.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('시술 관리'),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '등록된 시술 $count개',
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            TextButton(
+              onPressed: () => _navigateToTreatmentList(shop),
+              child: const Text('관리하기'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _navigateToTreatmentList(BeautyShop shop) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TreatmentListPage(shopId: shop.id),
+      ),
+    );
+    if (result == true) {
+      ref
+          .read(treatmentListNotifierProvider(widget.shopId).notifier)
+          .refresh();
+    }
   }
 
   Future<void> _navigateToEdit(BeautyShop shop) async {
