@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_owner/features/beautishop/presentation/pages/shop_detail_page.dart';
+import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registration_page.dart';
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/empty_shop_guide.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/owner_profile_card.dart';
@@ -16,11 +18,11 @@ class HomeTab extends ConsumerWidget {
     return RefreshIndicator(
       color: AppColors.pastelPink,
       onRefresh: () => ref.read(homeNotifierProvider.notifier).refresh(),
-      child: _buildContent(state),
+      child: _buildContent(context, ref, state),
     );
   }
 
-  Widget _buildContent(HomeState state) {
+  Widget _buildContent(BuildContext context, WidgetRef ref, HomeState state) {
     switch (state.status) {
       case HomeStatus.initial:
       case HomeStatus.loading:
@@ -30,7 +32,7 @@ class HomeTab extends ConsumerWidget {
       case HomeStatus.error:
         return _buildError(state.errorMessage ?? '오류가 발생했습니다');
       case HomeStatus.loaded:
-        return _buildLoaded(state);
+        return _buildLoaded(context, ref, state);
     }
   }
 
@@ -72,7 +74,7 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildLoaded(HomeState state) {
+  Widget _buildLoaded(BuildContext context, WidgetRef ref, HomeState state) {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -93,12 +95,41 @@ class HomeTab extends ConsumerWidget {
           ...state.shops.map(
             (shop) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: ShopSummaryCard(shop: shop),
+              child: ShopSummaryCard(
+                shop: shop,
+                onTap: () => _navigateToDetail(context, ref, shop.id),
+              ),
             ),
           )
         else
-          const EmptyShopGuide(),
+          EmptyShopGuide(
+            onRegisterTap: () => _navigateToRegister(context, ref),
+          ),
       ],
     );
+  }
+
+  Future<void> _navigateToRegister(BuildContext context, WidgetRef ref) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const ShopRegistrationPage()),
+    );
+    if (result == true) {
+      ref.read(homeNotifierProvider.notifier).refresh();
+    }
+  }
+
+  Future<void> _navigateToDetail(
+    BuildContext context,
+    WidgetRef ref,
+    String shopId,
+  ) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => ShopDetailPage(shopId: shopId)),
+    );
+    if (result == true) {
+      ref.read(homeNotifierProvider.notifier).refresh();
+    }
   }
 }
