@@ -7,6 +7,7 @@ import 'package:mobile_owner/features/beautishop/presentation/widgets/category_c
 import 'package:mobile_owner/features/beautishop/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_hours_display.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
+import 'package:mobile_owner/features/reservation/presentation/pages/reservation_list_page.dart';
 import 'package:mobile_owner/features/treatment/presentation/pages/treatment_list_page.dart';
 import 'package:mobile_owner/features/treatment/presentation/providers/treatment_list_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -190,6 +191,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         CategoryChipList(categories: shop.categories),
         const SizedBox(height: 20),
         _buildTreatmentSection(shop),
+        const SizedBox(height: 20),
+        _buildReservationSection(shop),
         const SizedBox(height: 32),
         Row(
           children: [
@@ -259,6 +262,41 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildReservationSection(BeautyShop shop) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('예약 관리'),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '예약 현황 보기',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            TextButton(
+              onPressed: () => _navigateToReservationList(shop),
+              child: const Text('관리하기'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _navigateToReservationList(BeautyShop shop) async {
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReservationListPage(shopId: shop.id),
+      ),
     );
   }
 
