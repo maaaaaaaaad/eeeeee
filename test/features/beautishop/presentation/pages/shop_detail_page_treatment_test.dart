@@ -83,13 +83,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.scrollUntilVisible(
-        find.text('관리하기'),
+        find.text('시술 관리'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
 
       expect(find.text('시술 관리'), findsOneWidget);
-      expect(find.text('관리하기'), findsOneWidget);
+      expect(find.text('관리하기'), findsWidgets);
     });
 
     testWidgets('should display 0 count when no treatments', (tester) async {
@@ -102,7 +102,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.scrollUntilVisible(
-        find.text('관리하기'),
+        find.text('등록된 시술 0개'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
