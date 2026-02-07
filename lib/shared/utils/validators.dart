@@ -62,6 +62,53 @@ class CoordinateValidator {
   }
 }
 
+class TreatmentNameValidator {
+  static const int minLength = 2;
+  static const int maxLength = 50;
+
+  static String? validate(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return '시술명을 입력해주세요';
+    if (trimmed.length < minLength) return '시술명은 $minLength자 이상이어야 합니다';
+    if (trimmed.length > maxLength) return '시술명은 $maxLength자 이하여야 합니다';
+    return null;
+  }
+}
+
+class PriceValidator {
+  static String? validate(String value) {
+    if (value.isEmpty) return '가격을 입력해주세요';
+    final parsed = int.tryParse(value);
+    if (parsed == null) return '숫자를 입력해주세요';
+    if (parsed < 0) return '가격은 0 이상이어야 합니다';
+    return null;
+  }
+}
+
+class DurationValidator {
+  static const int minMinutes = 10;
+  static const int maxMinutes = 300;
+
+  static String? validate(String value) {
+    if (value.isEmpty) return '소요시간을 입력해주세요';
+    final parsed = int.tryParse(value);
+    if (parsed == null) return '숫자를 입력해주세요';
+    if (parsed < minMinutes) return '소요시간은 $minMinutes분 이상이어야 합니다';
+    if (parsed > maxMinutes) return '소요시간은 $maxMinutes분 이하여야 합니다';
+    return null;
+  }
+}
+
+class DescriptionValidator {
+  static const int maxLength = 500;
+
+  static String? validate(String value) {
+    if (value.isEmpty) return null;
+    if (value.length > maxLength) return '설명은 $maxLength자 이하여야 합니다';
+    return null;
+  }
+}
+
 class ImageUrlValidator {
   static String? validate(String value) {
     if (value.isEmpty) return 'URL을 입력해주세요';
