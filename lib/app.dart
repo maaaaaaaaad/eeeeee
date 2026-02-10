@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/config/theme.dart';
+import 'package:mobile_owner/core/notification/navigator_key.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/splash_page.dart';
@@ -12,6 +13,7 @@ class OwnerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: '젤로마크 사장님',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
