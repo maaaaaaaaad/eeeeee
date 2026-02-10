@@ -4,6 +4,7 @@ import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registr
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/home_tab.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/my_shop_tab.dart';
+import 'package:mobile_owner/features/notification/presentation/providers/notification_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/widgets/onboarding_bottom_sheet.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -24,6 +25,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     MyShopTab(),
     _SettingsPlaceholder(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeNotifications();
+    });
+  }
+
+  void _initializeNotifications() {
+    ref.read(reservationRefreshCallbackProvider.notifier).state = () {
+      ref.read(homeNotifierProvider.notifier).refresh();
+    };
+    ref.read(localNotificationServiceProvider).initialize();
+    ref.read(notificationInitProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
