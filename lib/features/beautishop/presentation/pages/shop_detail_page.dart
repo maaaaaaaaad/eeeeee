@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/beautishop/presentation/pages/category_selection_page.dart';
+import 'package:mobile_owner/features/beautishop/presentation/pages/schedule_management_page.dart';
 import 'package:mobile_owner/features/beautishop/presentation/pages/shop_edit_page.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/shop_detail_provider.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/category_chip_list.dart';
@@ -169,7 +170,16 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
           ),
         ]),
         const SizedBox(height: 20),
-        _buildSectionTitle('영업 시간'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle('영업 시간'),
+            TextButton(
+              onPressed: () => _navigateToScheduleManagement(shop),
+              child: const Text('관리하기'),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         OperatingHoursDisplay(operatingTime: shop.operatingTime),
         const SizedBox(height: 20),
@@ -311,6 +321,18 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
       ref
           .read(treatmentListNotifierProvider(widget.shopId).notifier)
           .refresh();
+    }
+  }
+
+  Future<void> _navigateToScheduleManagement(BeautyShop shop) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ScheduleManagementPage(shop: shop),
+      ),
+    );
+    if (result == true) {
+      ref.read(shopDetailNotifierProvider(widget.shopId).notifier).refresh();
     }
   }
 
