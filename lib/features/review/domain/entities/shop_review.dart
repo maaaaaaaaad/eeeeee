@@ -12,6 +12,8 @@ class ShopReview extends Equatable {
   final List<String> images;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? ownerReplyContent;
+  final DateTime? ownerReplyCreatedAt;
 
   const ShopReview({
     required this.id,
@@ -25,11 +27,15 @@ class ShopReview extends Equatable {
     required this.images,
     required this.createdAt,
     required this.updatedAt,
+    this.ownerReplyContent,
+    this.ownerReplyCreatedAt,
   });
 
   bool get isEdited => updatedAt != createdAt;
 
   bool get hasContent => content != null && content!.isNotEmpty;
+
+  bool get hasReply => ownerReplyContent != null;
 
   String get maskedAuthorName {
     if (authorName == null || authorName!.isEmpty) return '';
