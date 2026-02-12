@@ -186,5 +186,158 @@ void main() {
         expect(tappedImages, review.images);
       }
     });
+
+    testWidgets('should show reply button when no reply', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReviewCard(
+              review: review,
+              onImageTap: (_, _) {},
+              onReplyTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('답글 달기'), findsOneWidget);
+    });
+
+    testWidgets('should show reply section when reply exists', (tester) async {
+      final reviewWithReply = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        authorName: '홍길동',
+        rating: 5,
+        content: '시술이 너무 좋았어요!',
+        images: [],
+        createdAt: DateTime(2024, 6, 15, 10, 30),
+        updatedAt: DateTime(2024, 6, 15, 10, 30),
+        ownerReplyContent: '감사합니다! 또 방문해주세요.',
+        ownerReplyCreatedAt: DateTime(2024, 6, 16),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReviewCard(
+              review: reviewWithReply,
+              onImageTap: (_, _) {},
+              onReplyEdit: () {},
+              onReplyDelete: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('사장님 답글'), findsOneWidget);
+      expect(find.text('감사합니다! 또 방문해주세요.'), findsOneWidget);
+      expect(find.text('수정'), findsOneWidget);
+      expect(find.text('삭제'), findsOneWidget);
+      expect(find.text('답글 달기'), findsNothing);
+    });
+
+    testWidgets('should call onReplyTap when reply button tapped',
+        (tester) async {
+      var tapped = false;
+
+      final noImages = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        authorName: '홍길동',
+        rating: 5,
+        content: '시술이 너무 좋았어요!',
+        images: [],
+        createdAt: DateTime(2024, 6, 15, 10, 30),
+        updatedAt: DateTime(2024, 6, 15, 10, 30),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReviewCard(
+              review: noImages,
+              onImageTap: (_, _) {},
+              onReplyTap: () => tapped = true,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('답글 달기'));
+      expect(tapped, true);
+    });
+
+    testWidgets('should call onReplyEdit when edit button tapped',
+        (tester) async {
+      var editTapped = false;
+
+      final reviewWithReply = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        authorName: '홍길동',
+        rating: 5,
+        content: '좋아요',
+        images: [],
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+        ownerReplyContent: '감사합니다!',
+        ownerReplyCreatedAt: DateTime(2024, 1, 2),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReviewCard(
+              review: reviewWithReply,
+              onImageTap: (_, _) {},
+              onReplyEdit: () => editTapped = true,
+              onReplyDelete: () {},
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('reply_edit_button')));
+      expect(editTapped, true);
+    });
+
+    testWidgets('should call onReplyDelete when delete button tapped',
+        (tester) async {
+      var deleteTapped = false;
+
+      final reviewWithReply = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        authorName: '홍길동',
+        rating: 5,
+        content: '좋아요',
+        images: [],
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+        ownerReplyContent: '감사합니다!',
+        ownerReplyCreatedAt: DateTime(2024, 1, 2),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReviewCard(
+              review: reviewWithReply,
+              onImageTap: (_, _) {},
+              onReplyEdit: () {},
+              onReplyDelete: () => deleteTapped = true,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('reply_delete_button')));
+      expect(deleteTapped, true);
+    });
   });
 }
