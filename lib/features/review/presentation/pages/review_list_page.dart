@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/review/presentation/providers/review_list_provider.dart';
 import 'package:mobile_owner/features/review/presentation/widgets/full_screen_image_viewer.dart';
+import 'package:mobile_owner/features/review/presentation/widgets/reply_input_dialog.dart';
 import 'package:mobile_owner/features/review/presentation/widgets/review_card.dart';
 import 'package:mobile_owner/features/review/presentation/widgets/review_stats_header.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -152,9 +153,17 @@ class _ReviewListPageState extends ConsumerState<ReviewListPage> {
             ),
           );
         }
+        final review = state.reviews[index];
         return ReviewCard(
-          review: state.reviews[index],
+          review: review,
           onImageTap: _openImageViewer,
+          onReplyTap: () => _showReplyDialog(review.id),
+          onReplyEdit: review.hasReply
+              ? () => _showReplyDialog(review.id, review.ownerReplyContent)
+              : null,
+          onReplyDelete: review.hasReply
+              ? () => _confirmDeleteReply(review.id)
+              : null,
         );
       },
     );
@@ -170,5 +179,59 @@ class _ReviewListPageState extends ConsumerState<ReviewListPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _showReplyDialog(String reviewId, [String? initialContent]) async {
+    final content = await showDialog<String>(
+      context: context,
+      builder: (_) => ReplyInputDialog(initialContent: initialContent),
+    );
+
+    if (content == null || !mounted) return;
+
+    final success = await ref
+        .read(reviewListNotifierProvider(widget.shopId).notifier)
+        .replyToReview(reviewId, content);
+
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('답글 등록에 실패했습니다')),
+      );
+    }
+  }
+
+  Future<void> _confirmDeleteReply(String reviewId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('답글 삭제'),
+        content: const Text('답글을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              '삭제',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final success = await ref
+        .read(reviewListNotifierProvider(widget.shopId).notifier)
+        .deleteReviewReply(reviewId);
+
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('답글 삭제에 실패했습니다')),
+      );
+    }
   }
 }
