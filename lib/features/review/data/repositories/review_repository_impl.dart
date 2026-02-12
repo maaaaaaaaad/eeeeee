@@ -32,4 +32,42 @@ class ReviewRepositoryImpl implements ReviewRepository {
       ));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> replyToReview({
+    required String shopId,
+    required String reviewId,
+    required String content,
+  }) async {
+    try {
+      await _remoteDataSource.replyToReview(
+        shopId: shopId,
+        reviewId: reviewId,
+        content: content,
+      );
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(ServerFailure(
+        e.response?.data?['message']?.toString() ?? '답글을 등록할 수 없습니다',
+      ));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteReviewReply({
+    required String shopId,
+    required String reviewId,
+  }) async {
+    try {
+      await _remoteDataSource.deleteReviewReply(
+        shopId: shopId,
+        reviewId: reviewId,
+      );
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(ServerFailure(
+        e.response?.data?['message']?.toString() ?? '답글을 삭제할 수 없습니다',
+      ));
+    }
+  }
 }
