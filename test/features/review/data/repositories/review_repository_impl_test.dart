@@ -112,4 +112,108 @@ void main() {
       );
     });
   });
+
+  group('replyToReview', () {
+    test('should return Right on success', () async {
+      when(() => mockDataSource.replyToReview(
+            shopId: 'shop-1',
+            reviewId: 'r-1',
+            content: '감사합니다!',
+          )).thenAnswer((_) async {});
+
+      final result = await repository.replyToReview(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+        content: '감사합니다!',
+      );
+
+      expect(result.isRight(), true);
+    });
+
+    test('should return ServerFailure on DioException', () async {
+      when(() => mockDataSource.replyToReview(
+            shopId: any(named: 'shopId'),
+            reviewId: any(named: 'reviewId'),
+            content: any(named: 'content'),
+          )).thenThrow(DioException(
+        requestOptions: RequestOptions(path: ''),
+        response: Response(
+          statusCode: 403,
+          requestOptions: RequestOptions(path: ''),
+          data: {'message': '권한이 없습니다'},
+        ),
+      ));
+
+      final result = await repository.replyToReview(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+        content: '감사합니다!',
+      );
+
+      result.fold(
+        (failure) {
+          expect(failure, isA<ServerFailure>());
+          expect(failure.message, '권한이 없습니다');
+        },
+        (_) => fail('should be left'),
+      );
+    });
+
+    test('should return default message when no message in response',
+        () async {
+      when(() => mockDataSource.replyToReview(
+            shopId: any(named: 'shopId'),
+            reviewId: any(named: 'reviewId'),
+            content: any(named: 'content'),
+          )).thenThrow(DioException(
+        requestOptions: RequestOptions(path: ''),
+      ));
+
+      final result = await repository.replyToReview(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+        content: '감사합니다!',
+      );
+
+      result.fold(
+        (failure) => expect(failure.message, '답글을 등록할 수 없습니다'),
+        (_) => fail('should be left'),
+      );
+    });
+  });
+
+  group('deleteReviewReply', () {
+    test('should return Right on success', () async {
+      when(() => mockDataSource.deleteReviewReply(
+            shopId: 'shop-1',
+            reviewId: 'r-1',
+          )).thenAnswer((_) async {});
+
+      final result = await repository.deleteReviewReply(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+      );
+
+      expect(result.isRight(), true);
+    });
+
+    test('should return ServerFailure on DioException', () async {
+      when(() => mockDataSource.deleteReviewReply(
+            shopId: any(named: 'shopId'),
+            reviewId: any(named: 'reviewId'),
+          )).thenThrow(DioException(
+        requestOptions: RequestOptions(path: ''),
+      ));
+
+      final result = await repository.deleteReviewReply(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+      );
+
+      result.fold(
+        (failure) => expect(failure.message, '답글을 삭제할 수 없습니다'),
+        (_) => fail('should be left'),
+      );
+    });
+  });
 }
