@@ -8,6 +8,17 @@ abstract class ReviewRemoteDataSource {
     required int size,
     required String sort,
   });
+
+  Future<void> replyToReview({
+    required String shopId,
+    required String reviewId,
+    required String content,
+  });
+
+  Future<void> deleteReviewReply({
+    required String shopId,
+    required String reviewId,
+  });
 }
 
 class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
@@ -32,5 +43,27 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
       },
     );
     return PagedShopReviewsModel.fromJson(response.data!);
+  }
+
+  @override
+  Future<void> replyToReview({
+    required String shopId,
+    required String reviewId,
+    required String content,
+  }) async {
+    await _apiClient.put<void>(
+      '/api/beautishops/$shopId/reviews/$reviewId/reply',
+      data: {'content': content},
+    );
+  }
+
+  @override
+  Future<void> deleteReviewReply({
+    required String shopId,
+    required String reviewId,
+  }) async {
+    await _apiClient.delete<void>(
+      '/api/beautishops/$shopId/reviews/$reviewId/reply',
+    );
   }
 }
