@@ -9,4 +9,15 @@ abstract class ReviewRepository {
     required int size,
     required String sort,
   });
+
+  Future<Either<Failure, void>> replyToReview({
+    required String shopId,
+    required String reviewId,
+    required String content,
+  });
+
+  Future<Either<Failure, void>> deleteReviewReply({
+    required String shopId,
+    required String reviewId,
+  });
 }
