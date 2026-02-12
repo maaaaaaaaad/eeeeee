@@ -13,6 +13,8 @@ class ShopReviewModel extends ShopReview {
     required super.images,
     required super.createdAt,
     required super.updatedAt,
+    super.ownerReplyContent,
+    super.ownerReplyCreatedAt,
   });
 
   factory ShopReviewModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,10 @@ class ShopReviewModel extends ShopReview {
           [],
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      ownerReplyContent: json['ownerReplyContent'] as String?,
+      ownerReplyCreatedAt: json['ownerReplyCreatedAt'] != null
+          ? DateTime.parse(json['ownerReplyCreatedAt'] as String)
+          : null,
     );
   }
 }
