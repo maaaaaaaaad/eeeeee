@@ -1,7 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/review/domain/entities/shop_review.dart';
+import 'package:mobile_owner/features/review/domain/usecases/delete_review_reply_usecase.dart';
 import 'package:mobile_owner/features/review/domain/usecases/get_shop_reviews_usecase.dart';
+import 'package:mobile_owner/features/review/domain/usecases/reply_to_review_usecase.dart';
 import 'package:mobile_owner/features/review/presentation/providers/review_provider.dart';
 
 final reviewListNotifierProvider = AutoDisposeNotifierProviderFamily<
@@ -76,6 +78,88 @@ class ReviewListNotifier
     if (state.sortType == sortType) return;
     state = state.copyWith(sortType: sortType, currentPage: 0);
     await loadReviews();
+  }
+
+  Future<bool> replyToReview(String reviewId, String content) async {
+    final useCase = ref.read(replyToReviewUseCaseProvider);
+    final result = await useCase(ReplyToReviewParams(
+      shopId: arg,
+      reviewId: reviewId,
+      content: content,
+    ));
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          errorMessage: failure.message,
+        );
+        return false;
+      },
+      (_) {
+        final now = DateTime.now();
+        final updatedReviews = state.reviews.map((review) {
+          if (review.id == reviewId) {
+            return ShopReview(
+              id: review.id,
+              shopId: review.shopId,
+              memberId: review.memberId,
+              shopName: review.shopName,
+              shopImage: review.shopImage,
+              authorName: review.authorName,
+              rating: review.rating,
+              content: review.content,
+              images: review.images,
+              createdAt: review.createdAt,
+              updatedAt: review.updatedAt,
+              ownerReplyContent: content,
+              ownerReplyCreatedAt: now,
+            );
+          }
+          return review;
+        }).toList();
+        state = state.copyWith(reviews: updatedReviews);
+        return true;
+      },
+    );
+  }
+
+  Future<bool> deleteReviewReply(String reviewId) async {
+    final useCase = ref.read(deleteReviewReplyUseCaseProvider);
+    final result = await useCase(DeleteReviewReplyParams(
+      shopId: arg,
+      reviewId: reviewId,
+    ));
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          errorMessage: failure.message,
+        );
+        return false;
+      },
+      (_) {
+        final updatedReviews = state.reviews.map((review) {
+          if (review.id == reviewId) {
+            return ShopReview(
+              id: review.id,
+              shopId: review.shopId,
+              memberId: review.memberId,
+              shopName: review.shopName,
+              shopImage: review.shopImage,
+              authorName: review.authorName,
+              rating: review.rating,
+              content: review.content,
+              images: review.images,
+              createdAt: review.createdAt,
+              updatedAt: review.updatedAt,
+            );
+          }
+          return review;
+        }).toList();
+        state = state.copyWith(reviews: updatedReviews);
+        return true;
+      },
+    );
   }
 }
 
