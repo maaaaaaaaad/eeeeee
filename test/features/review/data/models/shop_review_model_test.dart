@@ -102,5 +102,59 @@ void main() {
 
       expect(model.rating, 4);
     });
+
+    test('should parse reply fields from JSON', () {
+      final json = {
+        'id': 'r-1',
+        'shopId': 'shop-1',
+        'memberId': 'member-1',
+        'rating': 5,
+        'content': '좋아요',
+        'images': [],
+        'createdAt': '2024-01-01T00:00:00Z',
+        'updatedAt': '2024-01-01T00:00:00Z',
+        'ownerReplyContent': '감사합니다!',
+        'ownerReplyCreatedAt': '2024-01-02T00:00:00Z',
+      };
+
+      final model = ShopReviewModel.fromJson(json);
+
+      expect(model.ownerReplyContent, '감사합니다!');
+      expect(model.ownerReplyCreatedAt, DateTime.utc(2024, 1, 2));
+      expect(model.hasReply, true);
+    });
+
+    test('should handle null reply fields', () {
+      final json = {
+        'id': 'r-1',
+        'shopId': 'shop-1',
+        'memberId': 'member-1',
+        'createdAt': '2024-01-01T00:00:00Z',
+        'updatedAt': '2024-01-01T00:00:00Z',
+        'ownerReplyContent': null,
+        'ownerReplyCreatedAt': null,
+      };
+
+      final model = ShopReviewModel.fromJson(json);
+
+      expect(model.ownerReplyContent, isNull);
+      expect(model.ownerReplyCreatedAt, isNull);
+      expect(model.hasReply, false);
+    });
+
+    test('should handle missing reply fields', () {
+      final json = {
+        'id': 'r-1',
+        'shopId': 'shop-1',
+        'memberId': 'member-1',
+        'createdAt': '2024-01-01T00:00:00Z',
+        'updatedAt': '2024-01-01T00:00:00Z',
+      };
+
+      final model = ShopReviewModel.fromJson(json);
+
+      expect(model.ownerReplyContent, isNull);
+      expect(model.ownerReplyCreatedAt, isNull);
+    });
   });
 }
