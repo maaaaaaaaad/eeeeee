@@ -103,4 +103,51 @@ void main() {
           )).called(1);
     });
   });
+
+  group('replyToReview', () {
+    test('should PUT /api/beautishops/{shopId}/reviews/{reviewId}/reply',
+        () async {
+      when(() => mockApiClient.put<void>(
+            '/api/beautishops/shop-1/reviews/r-1/reply',
+            data: {'content': '감사합니다!'},
+          )).thenAnswer((_) async => Response(
+            statusCode: 200,
+            requestOptions: RequestOptions(
+                path: '/api/beautishops/shop-1/reviews/r-1/reply'),
+          ));
+
+      await dataSource.replyToReview(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+        content: '감사합니다!',
+      );
+
+      verify(() => mockApiClient.put<void>(
+            '/api/beautishops/shop-1/reviews/r-1/reply',
+            data: {'content': '감사합니다!'},
+          )).called(1);
+    });
+  });
+
+  group('deleteReviewReply', () {
+    test('should DELETE /api/beautishops/{shopId}/reviews/{reviewId}/reply',
+        () async {
+      when(() => mockApiClient.delete<void>(
+            '/api/beautishops/shop-1/reviews/r-1/reply',
+          )).thenAnswer((_) async => Response(
+            statusCode: 204,
+            requestOptions: RequestOptions(
+                path: '/api/beautishops/shop-1/reviews/r-1/reply'),
+          ));
+
+      await dataSource.deleteReviewReply(
+        shopId: 'shop-1',
+        reviewId: 'r-1',
+      );
+
+      verify(() => mockApiClient.delete<void>(
+            '/api/beautishops/shop-1/reviews/r-1/reply',
+          )).called(1);
+    });
+  });
 }
