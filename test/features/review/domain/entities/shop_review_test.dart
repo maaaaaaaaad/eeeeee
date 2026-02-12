@@ -159,5 +159,44 @@ void main() {
       );
       expect(emptyContent.hasContent, false);
     });
+
+    test('hasReply should return true when ownerReplyContent is not null', () {
+      final withReply = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        images: [],
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+        ownerReplyContent: '감사합니다!',
+        ownerReplyCreatedAt: DateTime(2024, 1, 2),
+      );
+      expect(withReply.hasReply, true);
+    });
+
+    test('hasReply should return false when ownerReplyContent is null', () {
+      final noReply = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        images: [],
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+      expect(noReply.hasReply, false);
+    });
+
+    test('should allow null reply fields', () {
+      final noReply = ShopReview(
+        id: 'r-1',
+        shopId: 'shop-1',
+        memberId: 'member-1',
+        images: [],
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+      expect(noReply.ownerReplyContent, isNull);
+      expect(noReply.ownerReplyCreatedAt, isNull);
+    });
   });
 }
