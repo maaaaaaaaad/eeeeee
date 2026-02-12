@@ -5,22 +5,39 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mobile_owner/core/error/failure.dart';
 import 'package:mobile_owner/features/review/domain/entities/paged_shop_reviews.dart';
 import 'package:mobile_owner/features/review/domain/entities/shop_review.dart';
+import 'package:mobile_owner/features/review/domain/usecases/delete_review_reply_usecase.dart';
 import 'package:mobile_owner/features/review/domain/usecases/get_shop_reviews_usecase.dart';
+import 'package:mobile_owner/features/review/domain/usecases/reply_to_review_usecase.dart';
 import 'package:mobile_owner/features/review/presentation/providers/review_list_provider.dart';
 import 'package:mobile_owner/features/review/presentation/providers/review_provider.dart';
 
 class MockGetShopReviewsUseCase extends Mock
     implements GetShopReviewsUseCase {}
 
+class MockReplyToReviewUseCase extends Mock implements ReplyToReviewUseCase {}
+
+class MockDeleteReviewReplyUseCase extends Mock
+    implements DeleteReviewReplyUseCase {}
+
 void main() {
   late MockGetShopReviewsUseCase mockUseCase;
+  late MockReplyToReviewUseCase mockReplyUseCase;
+  late MockDeleteReviewReplyUseCase mockDeleteReplyUseCase;
 
   setUp(() {
     mockUseCase = MockGetShopReviewsUseCase();
+    mockReplyUseCase = MockReplyToReviewUseCase();
+    mockDeleteReplyUseCase = MockDeleteReviewReplyUseCase();
   });
 
   setUpAll(() {
     registerFallbackValue(const GetShopReviewsParams(shopId: ''));
+    registerFallbackValue(
+      const ReplyToReviewParams(shopId: '', reviewId: '', content: ''),
+    );
+    registerFallbackValue(
+      const DeleteReviewReplyParams(shopId: '', reviewId: ''),
+    );
   });
 
   final reviews = [
@@ -62,6 +79,9 @@ void main() {
     return ProviderContainer(
       overrides: [
         getShopReviewsUseCaseProvider.overrideWithValue(mockUseCase),
+        replyToReviewUseCaseProvider.overrideWithValue(mockReplyUseCase),
+        deleteReviewReplyUseCaseProvider
+            .overrideWithValue(mockDeleteReplyUseCase),
       ],
     );
   }
@@ -258,6 +278,178 @@ void main() {
       final state = container.read(reviewListNotifierProvider('shop-1'));
       expect(state.reviews.length, 2);
       expect(state.status, ReviewListStatus.error);
+    });
+
+    test('should reply to review and update state locally', () async {
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedReviews));
+      when(() => mockReplyUseCase(any()))
+          .thenAnswer((_) async => const Right(null));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+
+      final success = await notifier.replyToReview('r-1', '감사합니다!');
+
+      expect(success, true);
+      final state = container.read(reviewListNotifierProvider('shop-1'));
+      final updated = state.reviews.firstWhere((r) => r.id == 'r-1');
+      expect(updated.ownerReplyContent, '감사합니다!');
+      expect(updated.ownerReplyCreatedAt, isNotNull);
+      expect(updated.hasReply, true);
+    });
+
+    test('should return false when reply fails', () async {
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedReviews));
+      when(() => mockReplyUseCase(any()))
+          .thenAnswer((_) async => const Left(ServerFailure('답글 실패')));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+
+      final success = await notifier.replyToReview('r-1', '감사합니다!');
+
+      expect(success, false);
+      final state = container.read(reviewListNotifierProvider('shop-1'));
+      expect(state.errorMessage, '답글 실패');
+      final review = state.reviews.firstWhere((r) => r.id == 'r-1');
+      expect(review.hasReply, false);
+    });
+
+    test('should call reply usecase with correct params', () async {
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedReviews));
+      when(() => mockReplyUseCase(any()))
+          .thenAnswer((_) async => const Right(null));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+      await notifier.replyToReview('r-1', '감사합니다!');
+
+      verify(() => mockReplyUseCase(const ReplyToReviewParams(
+            shopId: 'shop-1',
+            reviewId: 'r-1',
+            content: '감사합니다!',
+          ))).called(1);
+    });
+
+    test('should delete review reply and update state locally', () async {
+      final reviewsWithReply = [
+        ShopReview(
+          id: 'r-1',
+          shopId: 'shop-1',
+          memberId: 'member-1',
+          authorName: '홍길동',
+          rating: 5,
+          content: '좋아요',
+          images: [],
+          createdAt: DateTime(2024, 1, 1),
+          updatedAt: DateTime(2024, 1, 1),
+          ownerReplyContent: '감사합니다!',
+          ownerReplyCreatedAt: DateTime(2024, 1, 2),
+        ),
+      ];
+      final pagedWithReply = PagedShopReviews(
+        items: reviewsWithReply,
+        hasNext: false,
+        totalElements: 1,
+      );
+
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedWithReply));
+      when(() => mockDeleteReplyUseCase(any()))
+          .thenAnswer((_) async => const Right(null));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+
+      final beforeDelete = container.read(reviewListNotifierProvider('shop-1'));
+      expect(beforeDelete.reviews[0].hasReply, true);
+
+      final success = await notifier.deleteReviewReply('r-1');
+
+      expect(success, true);
+      final state = container.read(reviewListNotifierProvider('shop-1'));
+      final updated = state.reviews.firstWhere((r) => r.id == 'r-1');
+      expect(updated.ownerReplyContent, isNull);
+      expect(updated.ownerReplyCreatedAt, isNull);
+      expect(updated.hasReply, false);
+    });
+
+    test('should return false when delete reply fails', () async {
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedReviews));
+      when(() => mockDeleteReplyUseCase(any()))
+          .thenAnswer((_) async => const Left(ServerFailure('삭제 실패')));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+
+      final success = await notifier.deleteReviewReply('r-1');
+
+      expect(success, false);
+      final state = container.read(reviewListNotifierProvider('shop-1'));
+      expect(state.errorMessage, '삭제 실패');
+    });
+
+    test('should call delete reply usecase with correct params', () async {
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedReviews));
+      when(() => mockDeleteReplyUseCase(any()))
+          .thenAnswer((_) async => const Right(null));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+      await notifier.deleteReviewReply('r-1');
+
+      verify(() => mockDeleteReplyUseCase(const DeleteReviewReplyParams(
+            shopId: 'shop-1',
+            reviewId: 'r-1',
+          ))).called(1);
+    });
+
+    test('should not affect other reviews when replying', () async {
+      when(() => mockUseCase(any()))
+          .thenAnswer((_) async => Right(pagedReviews));
+      when(() => mockReplyUseCase(any()))
+          .thenAnswer((_) async => const Right(null));
+
+      final container = createContainer();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reviewListNotifierProvider('shop-1').notifier);
+      await notifier.loadReviews();
+      await notifier.replyToReview('r-1', '감사합니다!');
+
+      final state = container.read(reviewListNotifierProvider('shop-1'));
+      final otherReview = state.reviews.firstWhere((r) => r.id == 'r-2');
+      expect(otherReview.hasReply, false);
     });
   });
 }
