@@ -6,11 +6,17 @@ import 'package:mobile_owner/shared/theme/app_colors.dart';
 class ReviewCard extends StatelessWidget {
   final ShopReview review;
   final void Function(List<String> images, int index) onImageTap;
+  final VoidCallback? onReplyTap;
+  final VoidCallback? onReplyEdit;
+  final VoidCallback? onReplyDelete;
 
   const ReviewCard({
     super.key,
     required this.review,
     required this.onImageTap,
+    this.onReplyTap,
+    this.onReplyEdit,
+    this.onReplyDelete,
   });
 
   @override
@@ -41,9 +47,111 @@ class ReviewCard extends StatelessWidget {
             const SizedBox(height: 10),
             _buildImageRow(),
           ],
+          const SizedBox(height: 10),
+          if (review.hasReply)
+            _buildReplySection()
+          else
+            _buildReplyButton(),
         ],
       ),
     );
+  }
+
+  Widget _buildReplySection() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundLight,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                '사장님 답글',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              if (onReplyEdit != null)
+                GestureDetector(
+                  key: const Key('reply_edit_button'),
+                  onTap: onReplyEdit,
+                  child: const Text(
+                    '수정',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              if (onReplyEdit != null && onReplyDelete != null)
+                const SizedBox(width: 12),
+              if (onReplyDelete != null)
+                GestureDetector(
+                  key: const Key('reply_delete_button'),
+                  onTap: onReplyDelete,
+                  child: const Text(
+                    '삭제',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            review.ownerReplyContent!,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textPrimary,
+              height: 1.5,
+            ),
+          ),
+          if (review.ownerReplyCreatedAt != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _formatFullDate(review.ownerReplyCreatedAt!),
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textHint,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReplyButton() {
+    return GestureDetector(
+      key: const Key('reply_button'),
+      onTap: onReplyTap,
+      child: const Row(
+        children: [
+          Icon(Icons.chat_bubble_outline, size: 16, color: AppColors.textSecondary),
+          SizedBox(width: 4),
+          Text(
+            '답글 달기',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatFullDate(DateTime date) {
+    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
   }
 
   Widget _buildHeader() {
