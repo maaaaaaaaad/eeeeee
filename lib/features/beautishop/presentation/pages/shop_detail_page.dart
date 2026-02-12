@@ -9,6 +9,7 @@ import 'package:mobile_owner/features/beautishop/presentation/widgets/delete_con
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_hours_display.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 import 'package:mobile_owner/features/reservation/presentation/pages/reservation_list_page.dart';
+import 'package:mobile_owner/features/review/presentation/pages/review_list_page.dart';
 import 'package:mobile_owner/features/treatment/presentation/pages/treatment_list_page.dart';
 import 'package:mobile_owner/features/treatment/presentation/providers/treatment_list_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -146,29 +147,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
           _buildInfoRow(Icons.location_on_outlined, shop.address),
         ]),
         const SizedBox(height: 20),
-        _buildInfoSection('평점 / 리뷰', [
-          Row(
-            children: [
-              const Icon(Icons.star, color: Colors.amber, size: 18),
-              const SizedBox(width: 4),
-              Text(
-                shop.averageRating.toStringAsFixed(1),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Icon(Icons.rate_review_outlined,
-                  color: AppColors.pastelPink, size: 18),
-              const SizedBox(width: 4),
-              Text(
-                '${shop.reviewCount}건',
-                style: const TextStyle(fontSize: 14),
-              ),
-            ],
-          ),
-        ]),
+        _buildReviewSection(shop),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -369,6 +348,59 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
     if (confirmed == true) {
       ref.read(shopDetailNotifierProvider(widget.shopId).notifier).deleteShop();
     }
+  }
+
+  Widget _buildReviewSection(BeautyShop shop) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('평점 / 리뷰'),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.star, color: Colors.amber, size: 18),
+                const SizedBox(width: 4),
+                Text(
+                  shop.averageRating.toStringAsFixed(1),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Icon(Icons.rate_review_outlined,
+                    color: AppColors.pastelPink, size: 18),
+                const SizedBox(width: 4),
+                Text(
+                  '${shop.reviewCount}건',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+            TextButton(
+              onPressed: () => _navigateToReviewList(shop),
+              child: const Text('관리하기'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _navigateToReviewList(BeautyShop shop) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReviewListPage(
+          shopId: shop.id,
+          averageRating: shop.averageRating,
+          reviewCount: shop.reviewCount,
+        ),
+      ),
+    );
   }
 
   Widget _buildSectionTitle(String title) {
