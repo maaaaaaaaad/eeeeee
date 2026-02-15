@@ -27,10 +27,11 @@ platform :ios do
       export_method: "ad-hoc",
       output_directory: "build/ios",
       output_name: "Runner.ipa",
+      xcargs: "-allowProvisioningUpdates",
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
-          "com.jellomark.mobile.owner.mobileOwner" => ENV["IOS_PROVISIONING_PROFILE_NAME"] || "match AdHoc com.jellomark.mobile.owner.mobileOwner"
+          "com.jellomark.mobile.owner.mobileOwner" => "com.jellomark.mobile.owner.mobileOwner AdHoc"
         }
       }
     )
