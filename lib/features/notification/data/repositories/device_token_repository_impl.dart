@@ -18,6 +18,8 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
       return const Right(null);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? '토큰 등록에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('토큰 등록에 실패했습니다'));
     }
   }
 
@@ -28,6 +30,8 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
       return const Right(null);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? '토큰 해제에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('토큰 해제에 실패했습니다'));
     }
   }
 }
