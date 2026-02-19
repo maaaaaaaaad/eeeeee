@@ -39,6 +39,8 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '샵 등록에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('샵 등록에 실패했습니다'));
     }
   }
 
@@ -51,6 +53,8 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '샵 정보를 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('샵 정보를 불러올 수 없습니다'));
     }
   }
 
@@ -71,6 +75,8 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '샵 수정에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('샵 수정에 실패했습니다'));
     }
   }
 
@@ -83,6 +89,8 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '샵 삭제에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('샵 삭제에 실패했습니다'));
     }
   }
 
@@ -95,6 +103,8 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '카테고리를 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('카테고리를 불러올 수 없습니다'));
     }
   }
 
@@ -110,6 +120,8 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '카테고리 설정에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('카테고리 설정에 실패했습니다'));
     }
   }
 }
