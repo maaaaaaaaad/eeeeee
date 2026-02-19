@@ -22,14 +22,21 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
     if (!mounted) return;
 
-    final tokenStorage = ref.read(tokenStorageProvider);
-    final hasToken = await tokenStorage.hasToken();
+    try {
+      final tokenStorage = ref.read(tokenStorageProvider);
+      final hasToken = await tokenStorage
+          .hasToken()
+          .timeout(const Duration(seconds: 5));
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (hasToken) {
-      Navigator.of(context).pushReplacementNamed('/home');
-    } else {
+      if (hasToken) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+    } catch (_) {
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/login');
     }
   }
