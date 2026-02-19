@@ -19,7 +19,10 @@ class AppConfig {
       ),
     );
 
-    await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    try {
+      await Firebase.initializeApp()
+          .timeout(const Duration(seconds: 10));
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    } catch (_) {}
   }
 }
