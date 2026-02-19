@@ -25,6 +25,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '예약 목록을 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('예약 목록을 불러올 수 없습니다'));
     }
   }
 
@@ -39,6 +41,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '예약 정보를 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('예약 정보를 불러올 수 없습니다'));
     }
   }
 
@@ -53,6 +57,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '예약 확정에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('예약 확정에 실패했습니다'));
     }
   }
 
@@ -70,6 +76,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '예약 거절에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('예약 거절에 실패했습니다'));
     }
   }
 
@@ -84,6 +92,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '시술 완료 처리에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('시술 완료 처리에 실패했습니다'));
     }
   }
 
@@ -98,6 +108,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '노쇼 처리에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('노쇼 처리에 실패했습니다'));
     }
   }
 }
