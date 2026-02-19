@@ -45,44 +45,51 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   Future<void> loadData() async {
     state = state.copyWith(status: HomeStatus.loading);
 
-    final profileUseCase = ref.read(getMyProfileUseCaseProvider);
-    final shopsUseCase = ref.read(getMyShopsUseCaseProvider);
+    try {
+      final profileUseCase = ref.read(getMyProfileUseCaseProvider);
+      final shopsUseCase = ref.read(getMyShopsUseCaseProvider);
 
-    final results = await Future.wait([
-      profileUseCase(NoParams()),
-      shopsUseCase(NoParams()),
-    ]);
+      final results = await Future.wait([
+        profileUseCase(NoParams()),
+        shopsUseCase(NoParams()),
+      ]);
 
-    final profileResult = results[0];
-    final shopsResult = results[1];
+      final profileResult = results[0];
+      final shopsResult = results[1];
 
-    String? errorMessage;
+      String? errorMessage;
 
-    Owner? owner;
-    profileResult.fold(
-      (failure) => errorMessage = failure.message,
-      (data) => owner = data as Owner,
-    );
+      Owner? owner;
+      profileResult.fold(
+        (failure) => errorMessage = failure.message,
+        (data) => owner = data as Owner,
+      );
 
-    List<BeautyShop> shops = [];
-    shopsResult.fold(
-      (failure) => errorMessage ??= failure.message,
-      (data) => shops = data as List<BeautyShop>,
-    );
+      List<BeautyShop> shops = [];
+      shopsResult.fold(
+        (failure) => errorMessage ??= failure.message,
+        (data) => shops = data as List<BeautyShop>,
+      );
 
-    if (errorMessage != null) {
+      if (errorMessage != null) {
+        state = state.copyWith(
+          status: HomeStatus.error,
+          errorMessage: errorMessage,
+        );
+        return;
+      }
+
+      state = state.copyWith(
+        status: HomeStatus.loaded,
+        owner: owner,
+        shops: shops,
+      );
+    } catch (_) {
       state = state.copyWith(
         status: HomeStatus.error,
-        errorMessage: errorMessage,
+        errorMessage: '데이터를 불러올 수 없습니다',
       );
-      return;
     }
-
-    state = state.copyWith(
-      status: HomeStatus.loaded,
-      owner: owner,
-      shops: shops,
-    );
   }
 
   Future<void> refresh() async {
