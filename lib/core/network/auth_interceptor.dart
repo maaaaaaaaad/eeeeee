@@ -38,10 +38,14 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await tokenProvider.getAccessToken();
-    if (token != null) {
-      options.headers['Authorization'] = 'Bearer $token';
-    }
+    try {
+      final token = await tokenProvider
+          .getAccessToken()
+          .timeout(const Duration(seconds: 5));
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+    } catch (_) {}
     handler.next(options);
   }
 
