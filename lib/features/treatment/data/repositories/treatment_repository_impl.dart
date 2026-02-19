@@ -35,6 +35,8 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '시술 등록에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('시술 등록에 실패했습니다'));
     }
   }
 
@@ -47,6 +49,8 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '시술 정보를 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('시술 정보를 불러올 수 없습니다'));
     }
   }
 
@@ -60,6 +64,8 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '시술 목록을 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('시술 목록을 불러올 수 없습니다'));
     }
   }
 
@@ -83,6 +89,8 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '시술 수정에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('시술 수정에 실패했습니다'));
     }
   }
 
@@ -95,6 +103,8 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '시술 삭제에 실패했습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('시술 삭제에 실패했습니다'));
     }
   }
 }
