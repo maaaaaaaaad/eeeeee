@@ -30,6 +30,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '리뷰를 불러올 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('리뷰를 불러올 수 없습니다'));
     }
   }
 
@@ -50,6 +52,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '답글을 등록할 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('답글을 등록할 수 없습니다'));
     }
   }
 
@@ -68,6 +72,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
       return Left(ServerFailure(
         e.response?.data?['message']?.toString() ?? '답글을 삭제할 수 없습니다',
       ));
+    } catch (_) {
+      return const Left(ServerFailure('답글을 삭제할 수 없습니다'));
     }
   }
 }
