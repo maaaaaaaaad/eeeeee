@@ -30,12 +30,30 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
       if (!mounted) return;
 
-      if (hasToken) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
+      if (!hasToken) {
         Navigator.of(context).pushReplacementNamed('/login');
+        return;
       }
+
+      final authRepository = ref.read(authRepositoryProvider);
+      final result = await authRepository.getCurrentOwner();
+
+      if (!mounted) return;
+
+      result.fold(
+        (_) async {
+          await tokenStorage.clearTokens();
+          if (!mounted) return;
+          Navigator.of(context).pushReplacementNamed('/login');
+        },
+        (_) {
+          Navigator.of(context).pushReplacementNamed('/home');
+        },
+      );
     } catch (_) {
+      if (!mounted) return;
+      final tokenStorage = ref.read(tokenStorageProvider);
+      await tokenStorage.clearTokens();
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/login');
     }
