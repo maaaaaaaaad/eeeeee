@@ -21,6 +21,19 @@ void main() {
       expect(BusinessNumberFormatter.stripHyphens('123-45-67890'), equals('1234567890'));
       expect(BusinessNumberFormatter.stripHyphens('1234567890'), equals('1234567890'));
     });
+
+    test('should format business number with hyphens', () {
+      expect(BusinessNumberFormatter.formatWithHyphens('1234567890'), equals('123-45-67890'));
+    });
+
+    test('should format business number with hyphens when already has hyphens', () {
+      expect(BusinessNumberFormatter.formatWithHyphens('123-45-67890'), equals('123-45-67890'));
+    });
+
+    test('should return original value when business number length is invalid', () {
+      expect(BusinessNumberFormatter.formatWithHyphens('12345'), equals('12345'));
+      expect(BusinessNumberFormatter.formatWithHyphens('12345678901'), equals('12345678901'));
+    });
   });
 
   group('PhoneNumberFormatter', () {
@@ -43,6 +56,23 @@ void main() {
     test('should strip hyphens from phone number', () {
       expect(PhoneNumberFormatter.stripHyphens('010-1234-5678'), equals('01012345678'));
       expect(PhoneNumberFormatter.stripHyphens('01012345678'), equals('01012345678'));
+    });
+
+    test('should format 11-digit phone number with hyphens', () {
+      expect(PhoneNumberFormatter.formatWithHyphens('01012345678'), equals('010-1234-5678'));
+    });
+
+    test('should format 10-digit phone number with hyphens', () {
+      expect(PhoneNumberFormatter.formatWithHyphens('0101234567'), equals('010-123-4567'));
+    });
+
+    test('should format phone number that already has hyphens', () {
+      expect(PhoneNumberFormatter.formatWithHyphens('010-1234-5678'), equals('010-1234-5678'));
+    });
+
+    test('should return original value when phone number length is invalid', () {
+      expect(PhoneNumberFormatter.formatWithHyphens('0101234'), equals('0101234'));
+      expect(PhoneNumberFormatter.formatWithHyphens('010123456789'), equals('010123456789'));
     });
   });
 }
