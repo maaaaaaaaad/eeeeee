@@ -9,6 +9,12 @@ class BusinessNumberFormatter {
   static String stripHyphens(String value) {
     return value.replaceAll('-', '');
   }
+
+  static String formatWithHyphens(String value) {
+    final digits = value.replaceAll('-', '');
+    if (digits.length != 10) return value;
+    return '${digits.substring(0, 3)}-${digits.substring(3, 5)}-${digits.substring(5)}';
+  }
 }
 
 class PhoneNumberFormatter {
@@ -21,5 +27,16 @@ class PhoneNumberFormatter {
 
   static String stripHyphens(String value) {
     return value.replaceAll('-', '');
+  }
+
+  static String formatWithHyphens(String value) {
+    final digits = value.replaceAll('-', '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    }
+    if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return value;
   }
 }
