@@ -60,6 +60,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (e.response?.statusCode == 409) {
         return const Left(ValidationFailure('이미 등록된 정보입니다'));
       }
+      if (e.response?.statusCode == 422) {
+        return const Left(ValidationFailure('입력 정보를 확인해주세요'));
+      }
       if (e.response?.statusCode == 400) {
         return const Left(ValidationFailure('입력 정보를 확인해주세요'));
       }
