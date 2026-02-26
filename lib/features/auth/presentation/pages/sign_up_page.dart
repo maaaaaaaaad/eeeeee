@@ -81,28 +81,31 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 onPressed: () => Navigator.of(context).pop(),
               ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            StepIndicator(
-              currentStep: signUpState.currentStep,
-              totalSteps: 3,
-            ),
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  SignUpStep1(onNext: _onNextStep),
-                  SignUpStep2(onNext: _onNextStep),
-                  SignUpStep3(
-                    onSubmit: _onSubmit,
-                    isLoading: signUpState.isLoading,
-                  ),
-                ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              StepIndicator(
+                currentStep: signUpState.currentStep,
+                totalSteps: 3,
               ),
-            ),
-          ],
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    SignUpStep1(onNext: _onNextStep),
+                    SignUpStep2(onNext: _onNextStep),
+                    SignUpStep3(
+                      onSubmit: _onSubmit,
+                      isLoading: signUpState.isLoading,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
