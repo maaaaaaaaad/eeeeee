@@ -114,7 +114,7 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                helperText: '8자 이상, 특수문자 포함',
+                helperText: '8자 이상, 대/소문자, 숫자, 특수문자 포함',
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -122,6 +122,15 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
                 }
                 if (value.length < 8) {
                   return '비밀번호는 8자 이상이어야 합니다';
+                }
+                if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                  return '대문자를 포함해주세요';
+                }
+                if (!RegExp(r'[a-z]').hasMatch(value)) {
+                  return '소문자를 포함해주세요';
+                }
+                if (!RegExp(r'[0-9]').hasMatch(value)) {
+                  return '숫자를 포함해주세요';
                 }
                 if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
                   return '특수문자를 포함해주세요';
