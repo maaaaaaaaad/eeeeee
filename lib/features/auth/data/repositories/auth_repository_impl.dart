@@ -51,10 +51,6 @@ class AuthRepositoryImpl implements AuthRepository {
         phoneNumber: phoneNumber,
         nickname: nickname,
       );
-      await tokenStorage.saveTokens(
-        accessToken: tokenModel.accessToken,
-        refreshToken: tokenModel.refreshToken,
-      );
       return Right(tokenModel);
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
