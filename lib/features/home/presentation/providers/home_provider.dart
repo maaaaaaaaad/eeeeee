@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/core/usecase/usecase.dart';
@@ -38,7 +40,7 @@ final homeNotifierProvider =
 class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   @override
   HomeState build() {
-    loadData();
+    Future.microtask(() => loadData());
     return const HomeState();
   }
 
