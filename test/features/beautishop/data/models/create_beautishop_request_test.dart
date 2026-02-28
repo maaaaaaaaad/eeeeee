@@ -18,10 +18,10 @@ void main() {
 
       final json = request.toJson();
 
-      expect(json['name'], '테스트 샵');
-      expect(json['regNum'], '1234567890');
-      expect(json['phoneNumber'], '01012345678');
-      expect(json['address'], '서울시 강남구');
+      expect(json['shopName'], '테스트 샵');
+      expect(json['shopRegNum'], '1234567890');
+      expect(json['shopPhoneNumber'], '01012345678');
+      expect(json['shopAddress'], '서울시 강남구');
       expect(json['latitude'], 37.5665);
       expect(json['longitude'], 126.978);
       expect(json['operatingTime'], {'MONDAY': '09:00-18:00'});
