@@ -23,10 +23,10 @@ class CreateBeautishopRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'regNum': regNum,
-      'phoneNumber': phoneNumber,
-      'address': address,
+      'shopName': name,
+      'shopRegNum': regNum,
+      'shopPhoneNumber': phoneNumber,
+      'shopAddress': address,
       'latitude': latitude,
       'longitude': longitude,
       'operatingTime': operatingTime,
