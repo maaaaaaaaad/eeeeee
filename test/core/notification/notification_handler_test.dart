@@ -55,6 +55,14 @@ void main() {
         );
       });
 
+      test('returns true for UNPROCESSED_RESERVATION_REMINDER', () {
+        expect(
+          NotificationHandler.isReservationNotification(
+              'UNPROCESSED_RESERVATION_REMINDER'),
+          isTrue,
+        );
+      });
+
       test('returns false for RESERVATION_CONFIRMED', () {
         expect(
           NotificationHandler.isReservationNotification('RESERVATION_CONFIRMED'),
