@@ -19,6 +19,7 @@ class NotificationHandler {
   static const _reservationTypes = {
     'RESERVATION_CREATED',
     'RESERVATION_CANCELLED',
+    'UNPROCESSED_RESERVATION_REMINDER',
   };
 
   void handleForegroundMessage(RemoteMessage message) {
