@@ -9,6 +9,21 @@ class EnvConfig {
     defaultValue: 'http://192.168.219.48:8080',
   );
 
+  static const String naverMapClientId = String.fromEnvironment(
+    'NAVER_MAP_CLIENT_ID',
+    defaultValue: '5yi4ydr7p1',
+  );
+
+  static const String naverClientId = String.fromEnvironment(
+    'NAVER_CLIENT_ID',
+    defaultValue: '5yi4ydr7p1',
+  );
+
+  static const String naverClientSecret = String.fromEnvironment(
+    'NAVER_CLIENT_SECRET',
+    defaultValue: '',
+  );
+
   static bool get isDebug => env == 'dev';
   static bool get isProduction => env == 'prod';
 }
