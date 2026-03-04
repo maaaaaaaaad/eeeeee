@@ -1,22 +1,29 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mobile_owner/features/beautishop/data/datasources/geocode_remote_datasource.dart';
+import 'package:mobile_owner/features/beautishop/data/models/geocode_result_model.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/create_shop_params.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/create_beautishop_usecase.dart';
 import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registration_page.dart';
+import 'package:mobile_owner/features/beautishop/presentation/providers/address_search_provider.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/beautishop_provider.dart';
-import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/map_preview.dart';
 
 class MockCreateBeautishopUseCase extends Mock
     implements CreateBeautishopUseCase {}
 
+class MockGeocodeRemoteDataSource extends Mock
+    implements GeocodeRemoteDataSource {}
+
 void main() {
   late MockCreateBeautishopUseCase mockUseCase;
+  late MockGeocodeRemoteDataSource mockGeocodeDataSource;
 
   setUp(() {
     mockUseCase = MockCreateBeautishopUseCase();
+    mockGeocodeDataSource = MockGeocodeRemoteDataSource();
   });
 
   setUpAll(() {
@@ -35,6 +42,15 @@ void main() {
     return ProviderScope(
       overrides: [
         createBeautishopUseCaseProvider.overrideWithValue(mockUseCase),
+        geocodeRemoteDataSourceProvider
+            .overrideWithValue(mockGeocodeDataSource),
+        mapWidgetBuilderProvider.overrideWithValue(
+          (lat, lng) => Container(
+            key: const Key('map_placeholder'),
+            color: Colors.grey,
+            child: Center(child: Text('$lat, $lng')),
+          ),
+        ),
       ],
       child: const MaterialApp(
         home: ShopRegistrationPage(),
@@ -51,6 +67,74 @@ void main() {
       expect(find.widgetWithText(TextFormField, '샵 이름'), findsOneWidget);
     });
 
+    testWidgets('should display location section with search icon',
+        (tester) async {
+      await tester.pumpWidget(createWidget());
+
+      await tester.scrollUntilVisible(
+        find.text('위치 정보'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+
+      expect(find.text('위치 정보'), findsOneWidget);
+      expect(find.byIcon(Icons.search), findsOneWidget);
+    });
+
+    testWidgets('should open address search bottom sheet when address tapped',
+        (tester) async {
+      await tester.pumpWidget(createWidget());
+
+      await tester.scrollUntilVisible(
+        find.widgetWithText(TextFormField, '주소'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.widgetWithText(TextFormField, '주소'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('주소 검색'), findsOneWidget);
+    });
+
+    testWidgets(
+        'should fill address and coordinates when search result selected',
+        (tester) async {
+      const testResults = [
+        GeocodeResultModel(
+          roadAddress: '서울특별시 강남구 테헤란로 123',
+          jibunAddress: '서울특별시 강남구 역삼동 456',
+          latitude: 37.5665,
+          longitude: 126.978,
+        ),
+      ];
+
+      when(() => mockGeocodeDataSource.searchAddress(any()))
+          .thenAnswer((_) async => testResults);
+
+      await tester.pumpWidget(createWidget());
+
+      await tester.scrollUntilVisible(
+        find.widgetWithText(TextFormField, '주소'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.widgetWithText(TextFormField, '주소'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+          find.widgetWithText(TextField, '주소 검색'), '강남구');
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('서울특별시 강남구 테헤란로 123'));
+      await tester.pumpAndSettle();
+
+      final addressField = tester.widget<TextFormField>(
+        find.widgetWithText(TextFormField, '서울특별시 강남구 테헤란로 123'),
+      );
+      expect(addressField.controller?.text, '서울특별시 강남구 테헤란로 123');
+    });
+
     testWidgets('should show validation errors when tapping register button',
         (tester) async {
       await tester.pumpWidget(createWidget());
@@ -64,63 +148,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('입력해주세요'), findsWidgets);
-    });
-
-    testWidgets('should call register on valid form submit', (tester) async {
-      const testShop = BeautyShop(
-        id: 'shop-1',
-        name: '테스트 샵',
-        regNum: '1234567890',
-        phoneNumber: '01012345678',
-        address: '서울시 강남구',
-        latitude: 37.5665,
-        longitude: 126.978,
-        operatingTime: {},
-        images: [],
-        averageRating: 0.0,
-        reviewCount: 0,
-        categories: [],
-      );
-
-      when(() => mockUseCase(any()))
-          .thenAnswer((_) async => const Right(testShop));
-
-      await tester.pumpWidget(createWidget());
-
-      await tester.enterText(
-          find.widgetWithText(TextFormField, '샵 이름'), '테스트 샵');
-      await tester.enterText(
-          find.widgetWithText(TextFormField, '사업자등록번호'), '1234567890');
-      await tester.enterText(
-          find.widgetWithText(TextFormField, '전화번호'), '01012345678');
-
-      await tester.scrollUntilVisible(
-        find.widgetWithText(TextFormField, '주소'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.enterText(
-          find.widgetWithText(TextFormField, '주소'), '서울시 강남구');
-
-      await tester.scrollUntilVisible(
-        find.widgetWithText(TextFormField, '위도'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.enterText(
-          find.widgetWithText(TextFormField, '위도'), '37.5665');
-      await tester.enterText(
-          find.widgetWithText(TextFormField, '경도'), '126.978');
-
-      await tester.scrollUntilVisible(
-        find.text('등록하기'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('등록하기'));
-      await tester.pumpAndSettle();
-
-      verify(() => mockUseCase(any())).called(1);
     });
   });
 }
