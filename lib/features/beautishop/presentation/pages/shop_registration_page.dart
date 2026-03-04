@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/create_shop_params.dart';
+import 'package:mobile_owner/features/beautishop/domain/entities/geocode_result.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/shop_registration_provider.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/address_search_bottom_sheet.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/map_preview.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_time_form.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/shop_image_url_list.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -27,6 +30,7 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
 
   Map<String, String> _operatingTime = {};
   List<String> _imageUrls = [];
+  GeocodeResult? _selectedLocation;
 
   @override
   void dispose() {
@@ -101,7 +105,10 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
               _buildTextField(
                 controller: _addressController,
                 label: '주소',
+                readOnly: true,
+                onTap: _openAddressSearch,
                 validator: (v) => AddressValidator.validate(v ?? ''),
+                suffixIcon: const Icon(Icons.search),
               ),
               const SizedBox(height: 12),
               Row(
@@ -110,8 +117,7 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
                     child: _buildTextField(
                       controller: _latitudeController,
                       label: '위도',
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      readOnly: true,
                       validator: (v) =>
                           CoordinateValidator.validateLatitude(v ?? ''),
                     ),
@@ -121,14 +127,17 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
                     child: _buildTextField(
                       controller: _longitudeController,
                       label: '경도',
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      readOnly: true,
                       validator: (v) =>
                           CoordinateValidator.validateLongitude(v ?? ''),
                     ),
                   ),
                 ],
               ),
+              if (_selectedLocation != null) ...[
+                const SizedBox(height: 12),
+                _buildMapPreview(),
+              ],
               const SizedBox(height: 24),
               _buildSectionTitle('영업 시간'),
               const SizedBox(height: 12),
@@ -195,6 +204,35 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
     );
   }
 
+  void _openAddressSearch() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => AddressSearchBottomSheet(
+        onSelected: _onAddressSelected,
+      ),
+    );
+  }
+
+  void _onAddressSelected(GeocodeResult result) {
+    setState(() {
+      _selectedLocation = result;
+      _addressController.text = result.displayAddress;
+      _latitudeController.text = result.latitude.toString();
+      _longitudeController.text = result.longitude.toString();
+    });
+  }
+
+  Widget _buildMapPreview() {
+    return MapPreview(
+      latitude: _selectedLocation!.latitude,
+      longitude: _selectedLocation!.longitude,
+    );
+  }
+
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -232,15 +270,21 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
+      readOnly: readOnly,
+      onTap: onTap,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        suffixIcon: suffixIcon,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
