@@ -24,7 +24,7 @@ if [ -n "$CURRENT_IP" ]; then
     API_BASE_URL="http://${CURRENT_IP}:8080"
 fi
 
-DART_DEFINES="--dart-define=ENV=$ENV --dart-define=API_BASE_URL=$API_BASE_URL"
+DART_DEFINES="--dart-define=ENV=$ENV --dart-define=API_BASE_URL=$API_BASE_URL --dart-define=NAVER_MAP_CLIENT_ID=$NAVER_MAP_CLIENT_ID --dart-define=NAVER_CLIENT_ID=$NAVER_CLIENT_ID --dart-define=NAVER_CLIENT_SECRET=$NAVER_CLIENT_SECRET"
 
 echo "==================================="
 echo "Starting 2 devices..."
