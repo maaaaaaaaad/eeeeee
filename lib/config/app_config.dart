@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:mobile_owner/config/env_config.dart';
 import 'package:mobile_owner/core/notification/fcm_service.dart';
 
 class AppConfig {
@@ -23,6 +25,12 @@ class AppConfig {
       await Firebase.initializeApp()
           .timeout(const Duration(seconds: 10));
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    } catch (_) {}
+
+    try {
+      await FlutterNaverMap()
+          .init(clientId: EnvConfig.naverMapClientId)
+          .timeout(const Duration(seconds: 5));
     } catch (_) {}
   }
 }
