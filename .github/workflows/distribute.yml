@@ -51,7 +51,7 @@ jobs:
           EOF
 
       - run: flutter pub get
-      - run: flutter build apk --release --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }}
+      - run: flutter build apk --release --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} --dart-define=NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
 
       - name: Decode service account
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" | base64 --decode > firebase-sa.json
@@ -103,7 +103,7 @@ jobs:
           PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(security cms -D -i $PROFILE_PATH))
           cp $PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
 
-      - run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }}
+      - run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} --dart-define=NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
 
       - name: Decode service account
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" | base64 --decode > firebase-sa.json
