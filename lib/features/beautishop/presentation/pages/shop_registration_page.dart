@@ -228,6 +228,9 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
 
   Widget _buildMapPreview() {
     return MapPreview(
+      key: ValueKey(
+        '${_selectedLocation!.latitude},${_selectedLocation!.longitude}',
+      ),
       latitude: _selectedLocation!.latitude,
       longitude: _selectedLocation!.longitude,
     );
