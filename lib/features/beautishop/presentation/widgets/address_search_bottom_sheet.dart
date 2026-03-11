@@ -54,7 +54,7 @@ class _AddressSearchBottomSheetState
                 autofocus: true,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: '주소 검색',
+                  hintText: '도로명 + 건물번호 (예: 테헤란로 123)',
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
@@ -115,9 +115,23 @@ class _AddressSearchBottomSheetState
       case AddressSearchStatus.success:
         if (state.results.isEmpty) {
           return const Center(
-            child: Text(
-              '검색 결과가 없습니다',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '검색 결과가 없습니다',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '도로명+건물번호 또는 동+번지로 검색해주세요\n(예: 테헤란로 123, 역삼동 456-7)',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.disabled,
+                  ),
+                ),
+              ],
             ),
           );
         }
