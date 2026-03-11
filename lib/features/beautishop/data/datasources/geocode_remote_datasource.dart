@@ -8,7 +8,7 @@ abstract class GeocodeRemoteDataSource {
 }
 
 class GeocodeRemoteDataSourceImpl implements GeocodeRemoteDataSource {
-  static const String _baseUrl = 'https://naveropenapi.apigw.ntruss.com';
+  static const String _baseUrl = 'https://maps.apigw.ntruss.com';
   static const String _endpoint = '/map-geocode/v2/geocode';
 
   late final Dio _dio;
