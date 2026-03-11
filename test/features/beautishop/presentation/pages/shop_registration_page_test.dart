@@ -93,7 +93,7 @@ void main() {
       await tester.tap(find.widgetWithText(TextFormField, '주소'));
       await tester.pumpAndSettle();
 
-      expect(find.text('주소 검색'), findsOneWidget);
+      expect(find.textContaining('도로명 + 건물번호'), findsOneWidget);
     });
 
     testWidgets(
@@ -122,7 +122,8 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-          find.widgetWithText(TextField, '주소 검색'), '강남구');
+          find.widgetWithText(TextField, '도로명 + 건물번호 (예: 테헤란로 123)'),
+          '강남구');
       await tester.testTextInput.receiveAction(TextInputAction.search);
       await tester.pumpAndSettle();
 
