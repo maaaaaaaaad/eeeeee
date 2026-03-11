@@ -62,13 +62,14 @@ void main() {
   }
 
   group('AddressSearchBottomSheet', () {
-    testWidgets('should display search text field', (tester) async {
+    testWidgets('should display search text field with format hint',
+        (tester) async {
       await tester.pumpWidget(createWidget());
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
 
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('주소 검색'), findsOneWidget);
+      expect(find.textContaining('도로명 + 건물번호'), findsOneWidget);
     });
 
     testWidgets('should show results after search', (tester) async {
@@ -87,7 +88,8 @@ void main() {
       expect(find.text('서울특별시 서초구 서초대로 789'), findsOneWidget);
     });
 
-    testWidgets('should show empty state when no results', (tester) async {
+    testWidgets('should show empty state with format guidance when no results',
+        (tester) async {
       when(() => mockDataSource.searchAddress(any()))
           .thenAnswer((_) async => []);
 
@@ -100,6 +102,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('검색 결과가 없습니다'), findsOneWidget);
+      expect(find.textContaining('도로명+건물번호'), findsOneWidget);
     });
 
     testWidgets('should call onSelected when result is tapped',
