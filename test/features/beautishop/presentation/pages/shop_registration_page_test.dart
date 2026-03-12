@@ -144,7 +144,7 @@ void main() {
       expect(addressField.controller?.text, '서울특별시 강남구 테헤란로 123');
     });
 
-    testWidgets('should show validation errors when tapping register button',
+    testWidgets('should show validation errors and snackbar when tapping register button',
         (tester) async {
       await tester.pumpWidget(createWidget());
 
@@ -157,6 +157,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('입력해주세요'), findsWidgets);
+      expect(find.text('입력 정보를 확인해주세요'), findsOneWidget);
     });
   });
 }
