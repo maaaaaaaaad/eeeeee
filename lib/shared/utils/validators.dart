@@ -25,15 +25,33 @@ class BusinessNumberValidator {
 }
 
 class PhoneNumberValidator {
-  static final RegExp _withHyphens = RegExp(r'^01[016789]-\d{3,4}-\d{4}$');
-  static final RegExp _withoutHyphens = RegExp(r'^01[016789]\d{7,8}$');
+  static final RegExp _mobile = RegExp(r'^01[016789]-?\d{3,4}-?\d{4}$');
+  static final RegExp _seoul = RegExp(r'^02-?\d{3,4}-?\d{4}$');
+  static final RegExp _regional = RegExp(r'^0(3[1-3]|4[1-4]|5[1-5]|6[1-4])-?\d{3,4}-?\d{4}$');
 
   static String? validate(String value) {
     if (value.isEmpty) return '전화번호를 입력해주세요';
-    if (!_withHyphens.hasMatch(value) && !_withoutHyphens.hasMatch(value)) {
+    if (!_mobile.hasMatch(value) && !_seoul.hasMatch(value) && !_regional.hasMatch(value)) {
       return '올바른 전화번호를 입력해주세요';
     }
     return null;
+  }
+}
+
+class PhoneNumberFormatter {
+  static final RegExp _mobileRaw = RegExp(r'^(01[016789])(\d{3,4})(\d{4})$');
+  static final RegExp _seoulRaw = RegExp(r'^(02)(\d{3,4})(\d{4})$');
+  static final RegExp _regionalRaw = RegExp(r'^(0(?:3[1-3]|4[1-4]|5[1-5]|6[1-4]))(\d{3,4})(\d{4})$');
+
+  static String format(String value) {
+    final digits = value.replaceAll('-', '');
+    for (final pattern in [_mobileRaw, _seoulRaw, _regionalRaw]) {
+      final match = pattern.firstMatch(digits);
+      if (match != null) {
+        return '${match.group(1)}-${match.group(2)}-${match.group(3)}';
+      }
+    }
+    return value;
   }
 }
 
