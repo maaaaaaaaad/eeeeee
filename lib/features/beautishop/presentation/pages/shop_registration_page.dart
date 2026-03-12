@@ -207,7 +207,12 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
   }
 
   void _onSubmit() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('입력 정보를 확인해주세요')),
+      );
+      return;
+    }
 
     if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
