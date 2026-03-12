@@ -61,20 +61,62 @@ void main() {
       expect(PhoneNumberValidator.validate(''), isNotNull);
     });
 
-    test('should return null for valid phone number without hyphens', () {
+    test('should return null for mobile without hyphens', () {
       expect(PhoneNumberValidator.validate('01012345678'), isNull);
     });
 
-    test('should return null for valid phone number with hyphens', () {
+    test('should return null for mobile with hyphens', () {
       expect(PhoneNumberValidator.validate('010-1234-5678'), isNull);
     });
 
+    test('should return null for Seoul landline without hyphens', () {
+      expect(PhoneNumberValidator.validate('0212345678'), isNull);
+    });
+
+    test('should return null for Seoul landline with hyphens', () {
+      expect(PhoneNumberValidator.validate('02-1234-5678'), isNull);
+    });
+
+    test('should return null for regional landline without hyphens', () {
+      expect(PhoneNumberValidator.validate('03112345678'), isNull);
+    });
+
+    test('should return null for regional landline with hyphens', () {
+      expect(PhoneNumberValidator.validate('031-1234-5678'), isNull);
+    });
+
     test('should return error for invalid prefix', () {
-      expect(PhoneNumberValidator.validate('02012345678'), isNotNull);
+      expect(PhoneNumberValidator.validate('09012345678'), isNotNull);
     });
 
     test('should return error for too short number', () {
       expect(PhoneNumberValidator.validate('010123'), isNotNull);
+    });
+  });
+
+  group('PhoneNumberFormatter', () {
+    test('should format mobile number without hyphens', () {
+      expect(PhoneNumberFormatter.format('01012345678'), '010-1234-5678');
+    });
+
+    test('should keep already hyphenated mobile number', () {
+      expect(PhoneNumberFormatter.format('010-1234-5678'), '010-1234-5678');
+    });
+
+    test('should format Seoul landline without hyphens', () {
+      expect(PhoneNumberFormatter.format('0212345678'), '02-1234-5678');
+    });
+
+    test('should format Seoul landline 9 digits', () {
+      expect(PhoneNumberFormatter.format('021234567'), '02-123-4567');
+    });
+
+    test('should format regional landline without hyphens', () {
+      expect(PhoneNumberFormatter.format('03112345678'), '031-1234-5678');
+    });
+
+    test('should return input as-is if unrecognized', () {
+      expect(PhoneNumberFormatter.format('12345'), '12345');
     });
   });
 
