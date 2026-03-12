@@ -24,8 +24,6 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
   final _regNumController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  final _latitudeController = TextEditingController();
-  final _longitudeController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   Map<String, String> _operatingTime = {};
@@ -38,8 +36,6 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
     _regNumController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -109,30 +105,6 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
                 onTap: _openAddressSearch,
                 validator: (v) => AddressValidator.validate(v ?? ''),
                 suffixIcon: const Icon(Icons.search),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _latitudeController,
-                      label: '위도',
-                      readOnly: true,
-                      validator: (v) =>
-                          CoordinateValidator.validateLatitude(v ?? ''),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _longitudeController,
-                      label: '경도',
-                      readOnly: true,
-                      validator: (v) =>
-                          CoordinateValidator.validateLongitude(v ?? ''),
-                    ),
-                  ),
-                ],
               ),
               if (_selectedLocation != null) ...[
                 const SizedBox(height: 12),
@@ -221,8 +193,6 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
     setState(() {
       _selectedLocation = result;
       _addressController.text = result.displayAddress;
-      _latitudeController.text = result.latitude.toString();
-      _longitudeController.text = result.longitude.toString();
     });
   }
 
@@ -239,13 +209,20 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('주소를 검색하여 선택해주세요')),
+      );
+      return;
+    }
+
     final params = CreateShopParams(
       name: _nameController.text.trim(),
       regNum: _regNumController.text.trim(),
       phoneNumber: _phoneController.text.trim(),
       address: _addressController.text.trim(),
-      latitude: double.parse(_latitudeController.text.trim()),
-      longitude: double.parse(_longitudeController.text.trim()),
+      latitude: _selectedLocation!.latitude,
+      longitude: _selectedLocation!.longitude,
       operatingTime: _operatingTime,
       shopDescription: _descriptionController.text.trim().isEmpty
           ? null
