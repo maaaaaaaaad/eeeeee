@@ -7,6 +7,7 @@ typedef MapWidgetBuilder = Widget Function(double latitude, double longitude);
 Widget _defaultMapBuilder(double latitude, double longitude) {
   final position = NLatLng(latitude, longitude);
   return NaverMap(
+    forceGesture: true,
     options: NaverMapViewOptions(
       initialCameraPosition: NCameraPosition(
         target: position,
