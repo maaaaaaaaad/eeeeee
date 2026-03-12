@@ -38,6 +38,8 @@ class AddressSearchNotifier extends AutoDisposeNotifier<AddressSearchState> {
   }
 
   Future<void> searchImmediate(String query) async {
+    _debounceTimer?.cancel();
+
     if (query.trim().isEmpty) {
       state = const AddressSearchState();
       return;
