@@ -224,7 +224,7 @@ class _ShopRegistrationPageState extends ConsumerState<ShopRegistrationPage> {
     final params = CreateShopParams(
       name: _nameController.text.trim(),
       regNum: _regNumController.text.trim(),
-      phoneNumber: _phoneController.text.trim(),
+      phoneNumber: PhoneNumberFormatter.format(_phoneController.text.trim()),
       address: _addressController.text.trim(),
       latitude: _selectedLocation!.latitude,
       longitude: _selectedLocation!.longitude,
