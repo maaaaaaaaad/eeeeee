@@ -96,8 +96,16 @@ void main() {
       expect(find.textContaining('도로명 + 건물번호'), findsOneWidget);
     });
 
+    testWidgets('should not display latitude and longitude fields',
+        (tester) async {
+      await tester.pumpWidget(createWidget());
+
+      expect(find.widgetWithText(TextFormField, '위도'), findsNothing);
+      expect(find.widgetWithText(TextFormField, '경도'), findsNothing);
+    });
+
     testWidgets(
-        'should fill address and coordinates when search result selected',
+        'should fill address when search result selected',
         (tester) async {
       const testResults = [
         GeocodeResultModel(
