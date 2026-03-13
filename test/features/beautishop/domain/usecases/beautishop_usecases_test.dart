@@ -12,6 +12,7 @@ import 'package:mobile_owner/features/beautishop/domain/usecases/delete_beautish
 import 'package:mobile_owner/features/beautishop/domain/usecases/get_beautishop_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/get_categories_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/set_shop_categories_usecase.dart';
+import 'package:mobile_owner/features/beautishop/domain/usecases/check_reg_num_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/update_beautishop_usecase.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 
@@ -188,6 +189,33 @@ void main() {
       expect(result, const Right(null));
       verify(() => mockRepository.setShopCategories('shop-1', ['1', '2']))
           .called(1);
+    });
+  });
+
+  group('CheckRegNumUseCase', () {
+    late CheckRegNumUseCase useCase;
+
+    setUp(() {
+      useCase = CheckRegNumUseCase(mockRepository);
+    });
+
+    test('should return Right(void) when reg num is available', () async {
+      when(() => mockRepository.checkRegNum('1234567890'))
+          .thenAnswer((_) async => const Right(null));
+
+      final result = await useCase('1234567890');
+
+      expect(result, const Right(null));
+      verify(() => mockRepository.checkRegNum('1234567890')).called(1);
+    });
+
+    test('should return failure when reg num is duplicate', () async {
+      when(() => mockRepository.checkRegNum('1234567890'))
+          .thenAnswer((_) async => const Left(ValidationFailure('이미 등록된 사업자등록번호입니다')));
+
+      final result = await useCase('1234567890');
+
+      expect(result.isLeft(), true);
     });
   });
 }
