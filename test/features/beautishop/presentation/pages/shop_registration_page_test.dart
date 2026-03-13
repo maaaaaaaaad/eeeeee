@@ -1,28 +1,42 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mobile_owner/core/error/failure.dart';
 import 'package:mobile_owner/features/beautishop/data/datasources/geocode_remote_datasource.dart';
-import 'package:mobile_owner/features/beautishop/data/models/geocode_result_model.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/create_shop_params.dart';
+import 'package:mobile_owner/features/beautishop/domain/usecases/check_reg_num_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/create_beautishop_usecase.dart';
 import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registration_page.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/address_search_provider.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/beautishop_provider.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/map_preview.dart';
+import 'package:mobile_owner/features/treatment/domain/entities/create_treatment_params.dart';
+import 'package:mobile_owner/features/treatment/domain/usecases/create_treatment_usecase.dart';
+import 'package:mobile_owner/features/treatment/presentation/providers/treatment_provider.dart';
 
 class MockCreateBeautishopUseCase extends Mock
     implements CreateBeautishopUseCase {}
+
+class MockCheckRegNumUseCase extends Mock implements CheckRegNumUseCase {}
+
+class MockCreateTreatmentUseCase extends Mock
+    implements CreateTreatmentUseCase {}
 
 class MockGeocodeRemoteDataSource extends Mock
     implements GeocodeRemoteDataSource {}
 
 void main() {
   late MockCreateBeautishopUseCase mockUseCase;
+  late MockCheckRegNumUseCase mockCheckRegNum;
+  late MockCreateTreatmentUseCase mockCreateTreatment;
   late MockGeocodeRemoteDataSource mockGeocodeDataSource;
 
   setUp(() {
     mockUseCase = MockCreateBeautishopUseCase();
+    mockCheckRegNum = MockCheckRegNumUseCase();
+    mockCreateTreatment = MockCreateTreatmentUseCase();
     mockGeocodeDataSource = MockGeocodeRemoteDataSource();
   });
 
@@ -36,12 +50,20 @@ void main() {
       longitude: 0,
       operatingTime: const {},
     ));
+    registerFallbackValue(const CreateTreatmentParams(
+      shopId: '',
+      name: '',
+      price: 0,
+      duration: 0,
+    ));
   });
 
   Widget createWidget() {
     return ProviderScope(
       overrides: [
         createBeautishopUseCaseProvider.overrideWithValue(mockUseCase),
+        checkRegNumUseCaseProvider.overrideWithValue(mockCheckRegNum),
+        createTreatmentUseCaseProvider.overrideWithValue(mockCreateTreatment),
         geocodeRemoteDataSourceProvider
             .overrideWithValue(mockGeocodeDataSource),
         mapWidgetBuilderProvider.overrideWithValue(
@@ -58,106 +80,77 @@ void main() {
     );
   }
 
-  group('ShopRegistrationPage', () {
-    testWidgets('should display app bar and first form section', (tester) async {
+  group('ShopRegistrationPage (Wizard)', () {
+    testWidgets('should display app bar and step indicator', (tester) async {
       await tester.pumpWidget(createWidget());
 
       expect(find.text('샵 등록'), findsOneWidget);
-      expect(find.text('기본 정보'), findsOneWidget);
+      expect(find.text('기본 정보를 입력해주세요'), findsOneWidget);
+    });
+
+    testWidgets('should display basic info step with form fields',
+        (tester) async {
+      await tester.pumpWidget(createWidget());
+
       expect(find.widgetWithText(TextFormField, '샵 이름'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, '사업자등록번호'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, '전화번호'), findsOneWidget);
+      expect(find.text('중복확인'), findsOneWidget);
     });
 
-    testWidgets('should display location section with search icon',
+    testWidgets('should show next button', (tester) async {
+      await tester.pumpWidget(createWidget());
+
+      expect(find.text('다음'), findsOneWidget);
+    });
+
+    testWidgets('should show snackbar when next pressed with empty fields',
         (tester) async {
       await tester.pumpWidget(createWidget());
 
-      await tester.scrollUntilVisible(
-        find.text('위치 정보'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-
-      expect(find.text('위치 정보'), findsOneWidget);
-      expect(find.byIcon(Icons.search), findsOneWidget);
-    });
-
-    testWidgets('should open address search bottom sheet when address tapped',
-        (tester) async {
-      await tester.pumpWidget(createWidget());
-
-      await tester.scrollUntilVisible(
-        find.widgetWithText(TextFormField, '주소'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.widgetWithText(TextFormField, '주소'));
+      await tester.tap(find.text('다음'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('도로명 + 건물번호'), findsOneWidget);
+      expect(find.text('입력 정보를 확인해주세요'), findsOneWidget);
     });
 
-    testWidgets('should not display latitude and longitude fields',
+    testWidgets('should navigate to step 2 with valid basic info',
         (tester) async {
-      await tester.pumpWidget(createWidget());
-
-      expect(find.widgetWithText(TextFormField, '위도'), findsNothing);
-      expect(find.widgetWithText(TextFormField, '경도'), findsNothing);
-    });
-
-    testWidgets(
-        'should fill address when search result selected',
-        (tester) async {
-      const testResults = [
-        GeocodeResultModel(
-          roadAddress: '서울특별시 강남구 테헤란로 123',
-          jibunAddress: '서울특별시 강남구 역삼동 456',
-          latitude: 37.5665,
-          longitude: 126.978,
-        ),
-      ];
-
-      when(() => mockGeocodeDataSource.searchAddress(any()))
-          .thenAnswer((_) async => testResults);
+      when(() => mockCheckRegNum('1234567890'))
+          .thenAnswer((_) async => const Right(null));
 
       await tester.pumpWidget(createWidget());
-
-      await tester.scrollUntilVisible(
-        find.widgetWithText(TextFormField, '주소'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.widgetWithText(TextFormField, '주소'));
-      await tester.pumpAndSettle();
 
       await tester.enterText(
-          find.widgetWithText(TextField, '도로명 + 건물번호 (예: 테헤란로 123)'),
-          '강남구');
-      await tester.testTextInput.receiveAction(TextInputAction.search);
+          find.widgetWithText(TextFormField, '샵 이름'), '뷰티샵');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '사업자등록번호'), '1234567890');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '전화번호'), '010-1234-5678');
+
+      await tester.tap(find.text('중복확인'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('서울특별시 강남구 테헤란로 123'));
+      await tester.tap(find.text('다음'));
       await tester.pumpAndSettle();
 
-      final addressField = tester.widget<TextFormField>(
-        find.widgetWithText(TextFormField, '서울특별시 강남구 테헤란로 123'),
-      );
-      expect(addressField.controller?.text, '서울특별시 강남구 테헤란로 123');
+      expect(find.text('위치 정보를 입력해주세요'), findsOneWidget);
     });
 
-    testWidgets('should show validation errors and snackbar when tapping register button',
+    testWidgets('should show duplicate message for existing reg num',
         (tester) async {
+      when(() => mockCheckRegNum('1234567890')).thenAnswer((_) async =>
+          const Left(
+              ValidationFailure('이미 등록된 사업자등록번호입니다')));
+
       await tester.pumpWidget(createWidget());
 
-      await tester.scrollUntilVisible(
-        find.text('등록하기'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('등록하기'));
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '사업자등록번호'), '1234567890');
+      await tester.tap(find.text('중복확인'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('입력해주세요'), findsWidgets);
-      expect(find.text('입력 정보를 확인해주세요'), findsOneWidget);
+      expect(find.text('이미 등록된 사업자등록번호입니다'), findsOneWidget);
     });
   });
 }
