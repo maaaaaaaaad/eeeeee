@@ -126,4 +126,21 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       return const Left(ServerFailure('카테고리 설정에 실패했습니다'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> checkRegNum(String regNum) async {
+    try {
+      await _remoteDataSource.checkRegNum(regNum);
+      return const Right(null);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        return const Left(ValidationFailure('이미 등록된 사업자등록번호입니다'));
+      }
+      final data = e.response?.data;
+      final detail = data is Map ? (data['detail'] ?? data['message'])?.toString() : null;
+      return Left(ServerFailure(detail ?? '사업자등록번호 확인에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('사업자등록번호 확인에 실패했습니다'));
+    }
+  }
 }
