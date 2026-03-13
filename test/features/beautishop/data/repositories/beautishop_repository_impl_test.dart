@@ -193,4 +193,54 @@ void main() {
       expect(result, const Right(null));
     });
   });
+
+  group('checkRegNum', () {
+    test('should return Right(void) when available', () async {
+      when(() => mockDataSource.checkRegNum('1234567890'))
+          .thenAnswer((_) async {});
+
+      final result = await repository.checkRegNum('1234567890');
+
+      expect(result, const Right(null));
+    });
+
+    test('should return ValidationFailure on 409', () async {
+      when(() => mockDataSource.checkRegNum('1234567890'))
+          .thenThrow(DioException(
+        requestOptions: RequestOptions(path: ''),
+        response: Response(
+          statusCode: 409,
+          requestOptions: RequestOptions(path: ''),
+        ),
+      ));
+
+      final result = await repository.checkRegNum('1234567890');
+
+      result.fold(
+        (failure) {
+          expect(failure, isA<ValidationFailure>());
+          expect(failure.message, '이미 등록된 사업자등록번호입니다');
+        },
+        (_) => fail('should be left'),
+      );
+    });
+
+    test('should return ServerFailure on other DioException', () async {
+      when(() => mockDataSource.checkRegNum('1234567890'))
+          .thenThrow(DioException(
+        requestOptions: RequestOptions(path: ''),
+        response: Response(
+          statusCode: 500,
+          requestOptions: RequestOptions(path: ''),
+        ),
+      ));
+
+      final result = await repository.checkRegNum('1234567890');
+
+      result.fold(
+        (failure) => expect(failure, isA<ServerFailure>()),
+        (_) => fail('should be left'),
+      );
+    });
+  });
 }
