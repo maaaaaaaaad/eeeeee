@@ -167,4 +167,23 @@ void main() {
           )).called(1);
     });
   });
+
+  group('checkRegNum', () {
+    test('should GET /api/beautishops/check-reg-num with regNum query param', () async {
+      when(() => mockApiClient.get<void>(
+            '/api/beautishops/check-reg-num',
+            queryParameters: {'regNum': '1234567890'},
+          )).thenAnswer((_) async => Response(
+            statusCode: 200,
+            requestOptions: RequestOptions(path: '/api/beautishops/check-reg-num'),
+          ));
+
+      await dataSource.checkRegNum('1234567890');
+
+      verify(() => mockApiClient.get<void>(
+            '/api/beautishops/check-reg-num',
+            queryParameters: {'regNum': '1234567890'},
+          )).called(1);
+    });
+  });
 }
