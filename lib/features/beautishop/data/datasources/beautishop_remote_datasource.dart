@@ -11,6 +11,7 @@ abstract class BeautishopRemoteDataSource {
   Future<void> deleteShop(String shopId);
   Future<List<CategoryModel>> getCategories();
   Future<void> setShopCategories(String shopId, List<String> categoryIds);
+  Future<void> checkRegNum(String regNum);
 }
 
 class BeautishopRemoteDataSourceImpl implements BeautishopRemoteDataSource {
@@ -70,6 +71,14 @@ class BeautishopRemoteDataSourceImpl implements BeautishopRemoteDataSource {
     await _apiClient.put<void>(
       '/api/beautishops/$shopId/categories',
       data: {'categoryIds': categoryIds},
+    );
+  }
+
+  @override
+  Future<void> checkRegNum(String regNum) async {
+    await _apiClient.get<void>(
+      '/api/beautishops/check-reg-num',
+      queryParameters: {'regNum': regNum},
     );
   }
 }
