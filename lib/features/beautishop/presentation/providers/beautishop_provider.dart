@@ -8,6 +8,7 @@ import 'package:mobile_owner/features/beautishop/domain/usecases/delete_beautish
 import 'package:mobile_owner/features/beautishop/domain/usecases/get_beautishop_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/get_categories_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/set_shop_categories_usecase.dart';
+import 'package:mobile_owner/features/beautishop/domain/usecases/check_reg_num_usecase.dart';
 import 'package:mobile_owner/features/beautishop/domain/usecases/update_beautishop_usecase.dart';
 
 final beautishopRemoteDataSourceProvider =
@@ -47,4 +48,8 @@ final getCategoriesUseCaseProvider = Provider<GetCategoriesUseCase>((ref) {
 final setShopCategoriesUseCaseProvider =
     Provider<SetShopCategoriesUseCase>((ref) {
   return SetShopCategoriesUseCase(ref.watch(beautishopRepositoryProvider));
+});
+
+final checkRegNumUseCaseProvider = Provider<CheckRegNumUseCase>((ref) {
+  return CheckRegNumUseCase(ref.watch(beautishopRepositoryProvider));
 });
