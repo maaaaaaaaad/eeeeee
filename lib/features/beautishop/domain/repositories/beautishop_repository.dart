@@ -12,4 +12,5 @@ abstract class BeautishopRepository {
   Future<Either<Failure, void>> deleteShop(String shopId);
   Future<Either<Failure, List<Category>>> getCategories();
   Future<Either<Failure, void>> setShopCategories(String shopId, List<String> categoryIds);
+  Future<Either<Failure, void>> checkRegNum(String regNum);
 }
