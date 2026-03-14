@@ -104,14 +104,14 @@ void main() {
       expect(find.text('다음'), findsOneWidget);
     });
 
-    testWidgets('should show snackbar when next pressed with empty fields',
+    testWidgets('should show specific error when next pressed with empty fields',
         (tester) async {
       await tester.pumpWidget(createWidget());
 
       await tester.tap(find.text('다음'));
       await tester.pumpAndSettle();
 
-      expect(find.text('입력 정보를 확인해주세요'), findsOneWidget);
+      expect(find.text('샵 이름을 입력해주세요'), findsOneWidget);
     });
 
     testWidgets('should navigate to step 2 with valid basic info',
@@ -129,6 +129,9 @@ void main() {
           find.widgetWithText(TextFormField, '전화번호'), '010-1234-5678');
 
       await tester.tap(find.text('중복확인'));
+      await tester.pumpAndSettle();
+
+      ScaffoldMessenger.of(tester.element(find.text('다음'))).clearSnackBars();
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('다음'));
