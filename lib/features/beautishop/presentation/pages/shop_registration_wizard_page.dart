@@ -181,10 +181,10 @@ class _ShopRegistrationWizardPageState
 
   void _onNext() {
     final notifier = ref.read(shopRegistrationWizardProvider.notifier);
-    final success = notifier.nextStep();
-    if (!success) {
+    final error = notifier.nextStep();
+    if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('입력 정보를 확인해주세요')),
+        SnackBar(content: Text(error)),
       );
     }
   }
