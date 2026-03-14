@@ -35,6 +35,20 @@ class _BasicInfoStepState extends ConsumerState<BasicInfoStep> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<RegNumCheckStatus>(
+      shopRegistrationWizardProvider.select((s) => s.regNumCheckStatus),
+      (prev, next) {
+        if (next == RegNumCheckStatus.available) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('사용 가능한 사업자등록번호입니다'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      },
+    );
+
     final regNumStatus =
         ref.watch(shopRegistrationWizardProvider.select((s) => s.regNumCheckStatus));
 
