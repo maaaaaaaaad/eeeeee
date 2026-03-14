@@ -107,13 +107,14 @@ class ShopRegistrationWizardNotifier
     );
   }
 
-  bool nextStep() {
-    if (!_validateCurrentStep()) return false;
+  String? nextStep() {
+    final error = _validateCurrentStep();
+    if (error != null) return error;
     if (state.currentStep < totalSteps - 1) {
       state = state.copyWith(currentStep: state.currentStep + 1);
-      return true;
+      return null;
     }
-    return false;
+    return null;
   }
 
   void previousStep() {
@@ -128,7 +129,7 @@ class ShopRegistrationWizardNotifier
     }
   }
 
-  bool _validateCurrentStep() {
+  String? _validateCurrentStep() {
     switch (state.currentStep) {
       case 0:
         return _validateBasicInfo();
@@ -141,41 +142,48 @@ class ShopRegistrationWizardNotifier
       case 4:
         return _validateTreatments();
       default:
-        return true;
+        return null;
     }
   }
 
-  bool _validateBasicInfo() {
-    if (ShopNameValidator.validate(state.shopName.trim()) != null) return false;
+  String? _validateBasicInfo() {
+    if (ShopNameValidator.validate(state.shopName.trim()) != null) {
+      return ShopNameValidator.validate(state.shopName.trim());
+    }
     if (BusinessNumberValidator.validate(state.shopRegNum.trim()) != null) {
-      return false;
+      return BusinessNumberValidator.validate(state.shopRegNum.trim());
     }
     if (PhoneNumberValidator.validate(state.shopPhoneNumber.trim()) != null) {
-      return false;
+      return PhoneNumberValidator.validate(state.shopPhoneNumber.trim());
     }
-    if (state.regNumCheckStatus != RegNumCheckStatus.available) return false;
-    return true;
+    if (state.regNumCheckStatus != RegNumCheckStatus.available) {
+      return '사업자등록번호 중복 확인을 해주세요';
+    }
+    return null;
   }
 
-  bool _validateLocation() {
-    if (state.selectedLocation == null) return false;
+  String? _validateLocation() {
+    if (state.selectedLocation == null) return '위치를 선택해주세요';
     final combinedAddress = _buildCombinedAddress();
     if (combinedAddress.length < 5 || combinedAddress.length > 200) {
-      return false;
+      return '주소는 5자 이상 200자 이하여야 합니다';
     }
-    return true;
+    return null;
   }
 
-  bool _validateOperatingTime() {
-    return state.operatingTime.isNotEmpty;
+  String? _validateOperatingTime() {
+    if (state.operatingTime.isEmpty) return '영업 시간을 설정해주세요';
+    return null;
   }
 
-  bool _validateDescription() {
-    return state.shopDescription.trim().isNotEmpty;
+  String? _validateDescription() {
+    if (state.shopDescription.trim().isEmpty) return '샵 설명을 입력해주세요';
+    return null;
   }
 
-  bool _validateTreatments() {
-    return state.treatmentDrafts.isNotEmpty;
+  String? _validateTreatments() {
+    if (state.treatmentDrafts.isEmpty) return '최소 1개 이상의 시술을 등록해주세요';
+    return null;
   }
 
   String _buildCombinedAddress() {
