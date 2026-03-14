@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_owner/core/error/failure.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/create_shop_params.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/geocode_result.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/treatment_draft.dart';
@@ -88,9 +89,18 @@ class ShopRegistrationWizardNotifier
     final result = await useCase(state.shopRegNum.trim());
 
     result.fold(
-      (_) => state = state.copyWith(
-        regNumCheckStatus: RegNumCheckStatus.duplicate,
-      ),
+      (failure) {
+        if (failure is ValidationFailure) {
+          state = state.copyWith(
+            regNumCheckStatus: RegNumCheckStatus.duplicate,
+          );
+        } else {
+          state = state.copyWith(
+            regNumCheckStatus: RegNumCheckStatus.unchecked,
+            errorMessage: failure.message,
+          );
+        }
+      },
       (_) => state = state.copyWith(
         regNumCheckStatus: RegNumCheckStatus.available,
       ),
