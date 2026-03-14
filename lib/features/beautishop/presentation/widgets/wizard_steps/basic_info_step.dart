@@ -38,13 +38,31 @@ class _BasicInfoStepState extends ConsumerState<BasicInfoStep> {
     ref.listen<RegNumCheckStatus>(
       shopRegistrationWizardProvider.select((s) => s.regNumCheckStatus),
       (prev, next) {
-        if (next == RegNumCheckStatus.available) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('사용 가능한 사업자등록번호입니다'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        if (prev != RegNumCheckStatus.checking) return;
+        switch (next) {
+          case RegNumCheckStatus.available:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('사용 가능한 사업자등록번호입니다'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          case RegNumCheckStatus.duplicate:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('이미 등록된 사업자등록번호입니다'),
+              ),
+            );
+          case RegNumCheckStatus.unchecked:
+            final errorMsg =
+                ref.read(shopRegistrationWizardProvider).errorMessage;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMsg ?? '확인 중 오류가 발생했습니다'),
+              ),
+            );
+          case RegNumCheckStatus.checking:
+            break;
         }
       },
     );
