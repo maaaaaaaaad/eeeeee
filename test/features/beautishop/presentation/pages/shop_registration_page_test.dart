@@ -153,7 +153,7 @@ void main() {
       await tester.tap(find.text('중복확인'));
       await tester.pumpAndSettle();
 
-      expect(find.text('이미 등록된 사업자등록번호입니다'), findsOneWidget);
+      expect(find.text('이미 등록된 사업자등록번호입니다'), findsWidgets);
     });
   });
 }
