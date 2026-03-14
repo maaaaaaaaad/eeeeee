@@ -144,7 +144,7 @@ void main() {
       expect(state.regNumCheckStatus, RegNumCheckStatus.available);
     });
 
-    test('should set status to duplicate on failure', () async {
+    test('should set status to duplicate on ValidationFailure', () async {
       when(() => mockCheckRegNum('1234567890')).thenAnswer(
           (_) async => const Left(ValidationFailure('이미 등록된 사업자등록번호입니다')));
 
@@ -154,6 +154,19 @@ void main() {
 
       final state = container.read(shopRegistrationWizardProvider);
       expect(state.regNumCheckStatus, RegNumCheckStatus.duplicate);
+    });
+
+    test('should reset to unchecked on ServerFailure', () async {
+      when(() => mockCheckRegNum('1234567890')).thenAnswer(
+          (_) async => const Left(ServerFailure('서버 오류')));
+
+      final notifier = container.read(shopRegistrationWizardProvider.notifier);
+      notifier.updateShopRegNum('1234567890');
+      await notifier.checkRegNumAvailability();
+
+      final state = container.read(shopRegistrationWizardProvider);
+      expect(state.regNumCheckStatus, RegNumCheckStatus.unchecked);
+      expect(state.errorMessage, '서버 오류');
     });
   });
 
