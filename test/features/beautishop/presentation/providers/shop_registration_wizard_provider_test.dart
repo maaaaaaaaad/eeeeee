@@ -171,15 +171,28 @@ void main() {
   });
 
   group('step navigation', () {
-    test('should not go to step 1 without valid basic info', () {
+    test('should return error message without valid basic info', () {
       final notifier = container.read(shopRegistrationWizardProvider.notifier);
       final result = notifier.nextStep();
 
-      expect(result, false);
+      expect(result, isNotNull);
       expect(container.read(shopRegistrationWizardProvider).currentStep, 0);
     });
 
-    test('should go to step 1 with valid basic info', () async {
+    test('should return regNum check message when fields valid but unchecked',
+        () async {
+      final notifier = container.read(shopRegistrationWizardProvider.notifier);
+      notifier.updateShopName('뷰티샵');
+      notifier.updateShopRegNum('1234567890');
+      notifier.updateShopPhoneNumber('010-1234-5678');
+
+      final result = notifier.nextStep();
+
+      expect(result, contains('중복 확인'));
+      expect(container.read(shopRegistrationWizardProvider).currentStep, 0);
+    });
+
+    test('should return null and advance with valid basic info', () async {
       when(() => mockCheckRegNum('1234567890'))
           .thenAnswer((_) async => const Right(null));
 
@@ -191,7 +204,7 @@ void main() {
 
       final result = notifier.nextStep();
 
-      expect(result, true);
+      expect(result, isNull);
       expect(container.read(shopRegistrationWizardProvider).currentStep, 1);
     });
 
@@ -231,7 +244,7 @@ void main() {
       notifier.nextStep();
 
       final result = notifier.nextStep();
-      expect(result, false);
+      expect(result, isNotNull);
     });
   });
 
