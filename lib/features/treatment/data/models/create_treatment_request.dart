@@ -13,7 +13,7 @@ class CreateTreatmentRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
+      'treatmentName': name,
       'price': price,
       'duration': duration,
       'description': description,
