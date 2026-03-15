@@ -13,7 +13,7 @@ void main() {
 
       final json = request.toJson();
 
-      expect(json['name'], '젤네일');
+      expect(json['treatmentName'], '젤네일');
       expect(json['price'], 30000);
       expect(json['duration'], 60);
       expect(json['description'], '기본 젤네일');
