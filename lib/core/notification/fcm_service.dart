@@ -20,9 +20,15 @@ class FcmService {
 
   Future<void> initialize() async {
     final settings = await _messaging.requestPermission();
+    debugPrint('FCM permission: ${settings.authorizationStatus}');
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional) {
+      await _messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
       await _registerToken();
       _messaging.onTokenRefresh.listen(_onTokenRefresh);
     }
@@ -40,7 +46,12 @@ class FcmService {
   }
 
   Future<void> _registerToken() async {
+    if (Platform.isIOS) {
+      final apnsToken = await _messaging.getAPNSToken();
+      debugPrint('APNs token: ${apnsToken != null ? "available" : "null"}');
+    }
     final token = await _messaging.getToken();
+    debugPrint('FCM token: ${token?.substring(0, 10)}...');
     if (token != null) {
       final platform = Platform.isIOS ? 'IOS' : 'ANDROID';
       await _deviceTokenRepository.registerToken(token, platform);
