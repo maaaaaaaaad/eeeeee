@@ -34,11 +34,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  void _initializeNotifications() {
+  Future<void> _initializeNotifications() async {
     ref.read(reservationRefreshCallbackProvider.notifier).state = () {
       ref.read(homeNotifierProvider.notifier).refresh();
     };
-    ref.read(localNotificationServiceProvider).initialize();
+    await ref.read(localNotificationServiceProvider).initialize();
     ref.read(notificationInitProvider);
   }
 
