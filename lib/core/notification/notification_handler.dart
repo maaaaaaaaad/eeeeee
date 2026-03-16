@@ -23,8 +23,12 @@ class NotificationHandler {
   };
 
   void handleForegroundMessage(RemoteMessage message) {
+    debugPrint('Foreground message received: ${message.messageId}, type=${message.data['type']}');
     final notification = message.notification;
-    if (notification == null) return;
+    if (notification == null) {
+      debugPrint('Notification payload is null, skipping');
+      return;
+    }
 
     final payload = buildPayload(message.data);
     _localNotificationService?.show(
