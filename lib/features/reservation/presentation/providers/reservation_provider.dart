@@ -4,6 +4,7 @@ import 'package:mobile_owner/features/reservation/data/datasources/reservation_r
 import 'package:mobile_owner/features/reservation/data/repositories/reservation_repository_impl.dart';
 import 'package:mobile_owner/features/reservation/domain/repositories/reservation_repository.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/get_shop_reservations_usecase.dart';
+import 'package:mobile_owner/features/reservation/domain/usecases/get_owner_reservations_usecase.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/get_reservation_usecase.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/confirm_reservation_usecase.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/reject_reservation_usecase.dart';
@@ -24,6 +25,11 @@ final reservationRepositoryProvider = Provider<ReservationRepository>((ref) {
 final getShopReservationsUseCaseProvider =
     Provider<GetShopReservationsUseCase>((ref) {
   return GetShopReservationsUseCase(ref.watch(reservationRepositoryProvider));
+});
+
+final getOwnerReservationsUseCaseProvider =
+    Provider<GetOwnerReservationsUseCase>((ref) {
+  return GetOwnerReservationsUseCase(ref.watch(reservationRepositoryProvider));
 });
 
 final getReservationUseCaseProvider =
