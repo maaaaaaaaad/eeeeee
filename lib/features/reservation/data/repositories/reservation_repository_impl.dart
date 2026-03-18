@@ -31,6 +31,20 @@ class ReservationRepositoryImpl implements ReservationRepository {
   }
 
   @override
+  Future<Either<Failure, List<Reservation>>> getOwnerReservations() async {
+    try {
+      final reservations = await _remoteDataSource.getOwnerReservations();
+      return Right(reservations);
+    } on DioException catch (e) {
+      return Left(ServerFailure(
+        e.response?.data?['message']?.toString() ?? '예약 목록을 불러올 수 없습니다',
+      ));
+    } catch (_) {
+      return const Left(ServerFailure('예약 목록을 불러올 수 없습니다'));
+    }
+  }
+
+  @override
   Future<Either<Failure, Reservation>> getReservation(
       String reservationId) async {
     try {
