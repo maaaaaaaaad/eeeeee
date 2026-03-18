@@ -7,6 +7,7 @@ import 'package:mobile_owner/features/reservation/domain/entities/reservation.da
 import 'package:mobile_owner/features/reservation/domain/entities/reservation_status.dart';
 import 'package:mobile_owner/features/reservation/domain/repositories/reservation_repository.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/get_shop_reservations_usecase.dart';
+import 'package:mobile_owner/features/reservation/domain/usecases/get_owner_reservations_usecase.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/get_reservation_usecase.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/confirm_reservation_usecase.dart';
 import 'package:mobile_owner/features/reservation/domain/usecases/reject_reservation_usecase.dart';
@@ -41,6 +42,36 @@ void main() {
     createdAt: DateTime(2024, 1, 1),
     updatedAt: DateTime(2024, 1, 1),
   );
+
+  group('GetOwnerReservationsUseCase', () {
+    late GetOwnerReservationsUseCase useCase;
+
+    setUp(() {
+      useCase = GetOwnerReservationsUseCase(mockRepository);
+    });
+
+    test('should get owner reservations via repository', () async {
+      when(() => mockRepository.getOwnerReservations())
+          .thenAnswer((_) async => Right([testReservation]));
+
+      final result = await useCase();
+
+      result.fold(
+        (_) => fail('should be right'),
+        (reservations) => expect(reservations.length, 1),
+      );
+      verify(() => mockRepository.getOwnerReservations()).called(1);
+    });
+
+    test('should return failure on error', () async {
+      when(() => mockRepository.getOwnerReservations())
+          .thenAnswer((_) async => const Left(ServerFailure('로드 실패')));
+
+      final result = await useCase();
+
+      expect(result.isLeft(), true);
+    });
+  });
 
   group('GetShopReservationsUseCase', () {
     late GetShopReservationsUseCase useCase;
