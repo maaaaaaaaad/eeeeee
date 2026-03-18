@@ -4,6 +4,7 @@ import 'package:mobile_owner/features/reservation/data/models/reservation_model.
 
 abstract class ReservationRemoteDataSource {
   Future<List<ReservationModel>> getShopReservations(String shopId);
+  Future<List<ReservationModel>> getOwnerReservations();
   Future<ReservationModel> getReservation(String reservationId);
   Future<ReservationModel> confirmReservation(String reservationId);
   Future<ReservationModel> rejectReservation(
@@ -22,6 +23,17 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   Future<List<ReservationModel>> getShopReservations(String shopId) async {
     final response = await _apiClient.get<dynamic>(
       '/api/beautishops/$shopId/reservations',
+    );
+    final list = response.data as List<dynamic>;
+    return list
+        .map((e) => ReservationModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<ReservationModel>> getOwnerReservations() async {
+    final response = await _apiClient.get<dynamic>(
+      '/api/reservations/owner',
     );
     final list = response.data as List<dynamic>;
     return list
