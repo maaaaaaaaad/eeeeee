@@ -4,6 +4,7 @@ import 'package:mobile_owner/features/beautishop/presentation/pages/shop_registr
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/home_tab.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/my_shop_tab.dart';
+import 'package:mobile_owner/features/home/presentation/widgets/reservation_tab.dart';
 import 'package:mobile_owner/features/notification/presentation/providers/notification_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/widgets/onboarding_bottom_sheet.dart';
@@ -22,6 +23,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   static const _tabs = [
     HomeTab(),
+    ReservationTab(),
     MyShopTab(),
     _SettingsPlaceholder(),
   ];
@@ -60,6 +62,12 @@ class _HomePageState extends ConsumerState<HomePage> {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home, color: AppColors.darkPink),
             label: '홈',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today_outlined),
+            selectedIcon:
+                Icon(Icons.calendar_today, color: AppColors.darkPink),
+            label: '예약',
           ),
           NavigationDestination(
             icon: Icon(Icons.store_outlined),
