@@ -72,6 +72,45 @@ void main() {
     });
   });
 
+  group('getOwnerReservations', () {
+    test('should return list on success', () async {
+      when(() => mockDataSource.getOwnerReservations())
+          .thenAnswer((_) async => [testModel]);
+
+      final result = await repository.getOwnerReservations();
+
+      result.fold(
+        (_) => fail('should be right'),
+        (reservations) {
+          expect(reservations.length, 1);
+          expect(reservations[0].id, 'r-1');
+        },
+      );
+    });
+
+    test('should return ServerFailure on DioException', () async {
+      when(() => mockDataSource.getOwnerReservations()).thenThrow(
+        DioException(requestOptions: RequestOptions(path: '')),
+      );
+
+      final result = await repository.getOwnerReservations();
+
+      expect(result.isLeft(), true);
+    });
+
+    test('should return ServerFailure on unexpected error', () async {
+      when(() => mockDataSource.getOwnerReservations())
+          .thenThrow(Exception('unexpected'));
+
+      final result = await repository.getOwnerReservations();
+
+      result.fold(
+        (failure) => expect(failure, isA<ServerFailure>()),
+        (_) => fail('should be left'),
+      );
+    });
+  });
+
   group('getReservation', () {
     test('should return Reservation on success', () async {
       when(() => mockDataSource.getReservation('r-1'))
