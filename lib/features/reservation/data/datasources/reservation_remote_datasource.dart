@@ -33,7 +33,7 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   @override
   Future<List<ReservationModel>> getOwnerReservations() async {
     final response = await _apiClient.get<dynamic>(
-      '/api/reservations/owner',
+      '/api/owner/reservations',
     );
     final list = response.data as List<dynamic>;
     return list
