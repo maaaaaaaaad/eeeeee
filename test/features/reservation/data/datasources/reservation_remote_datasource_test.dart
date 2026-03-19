@@ -60,14 +60,14 @@ void main() {
   });
 
   group('getOwnerReservations', () {
-    test('should GET /api/reservations/owner', () async {
+    test('should GET /api/owner/reservations', () async {
       when(() => mockApiClient.get<dynamic>(
-            '/api/reservations/owner',
+            '/api/owner/reservations',
           )).thenAnswer((_) async => Response(
             data: [reservationJson],
             statusCode: 200,
             requestOptions:
-                RequestOptions(path: '/api/reservations/owner'),
+                RequestOptions(path: '/api/owner/reservations'),
           ));
 
       final result = await dataSource.getOwnerReservations();
@@ -76,18 +76,18 @@ void main() {
       expect(result[0].id, 'r-1');
       expect(result[0].shopName, '뷰티샵');
       verify(() => mockApiClient.get<dynamic>(
-            '/api/reservations/owner',
+            '/api/owner/reservations',
           )).called(1);
     });
 
     test('should return empty list when no reservations', () async {
       when(() => mockApiClient.get<dynamic>(
-            '/api/reservations/owner',
+            '/api/owner/reservations',
           )).thenAnswer((_) async => Response(
             data: [],
             statusCode: 200,
             requestOptions:
-                RequestOptions(path: '/api/reservations/owner'),
+                RequestOptions(path: '/api/owner/reservations'),
           ));
 
       final result = await dataSource.getOwnerReservations();
