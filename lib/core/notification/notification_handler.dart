@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/core/notification/local_notification_service.dart';
+import 'package:mobile_owner/features/reservation/presentation/pages/reservation_detail_by_id_page.dart';
 
 class NotificationHandler {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -48,6 +49,15 @@ class NotificationHandler {
     final type = data['type'] as String?;
     if (isReservationNotification(type)) {
       _onReservationNotification?.call();
+
+      final reservationId = data['reservationId'] as String?;
+      if (reservationId != null) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => ReservationDetailByIdPage(reservationId: reservationId),
+          ),
+        );
+      }
     }
   }
 
