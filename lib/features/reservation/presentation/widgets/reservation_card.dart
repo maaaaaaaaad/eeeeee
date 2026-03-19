@@ -13,6 +13,17 @@ class ReservationCard extends StatelessWidget {
     required this.onTap,
   });
 
+  static String _formatTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inMinutes < 1) return '방금 전';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+    if (diff.inHours < 24) return '${diff.inHours}시간 전';
+    if (diff.inDays < 7) return '${diff.inDays}일 전';
+    return '${dateTime.month}/${dateTime.day}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -57,6 +68,14 @@ class ReservationCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _formatTimeAgo(reservation.createdAt),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textHint,
                 ),
               ),
             ],
