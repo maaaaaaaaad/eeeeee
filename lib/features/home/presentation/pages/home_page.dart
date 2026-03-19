@@ -7,6 +7,7 @@ import 'package:mobile_owner/features/home/presentation/widgets/my_shop_tab.dart
 import 'package:mobile_owner/features/home/presentation/widgets/reservation_tab.dart';
 import 'package:mobile_owner/features/notification/presentation/providers/notification_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/providers/onboarding_provider.dart';
+import 'package:mobile_owner/features/reservation/presentation/providers/owner_reservation_list_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/widgets/onboarding_bottom_sheet.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
@@ -44,6 +45,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     ref.read(notificationInitProvider);
   }
 
+  int get _pendingCount {
+    final state = ref.watch(ownerReservationListNotifierProvider);
+    return state.pendingReservations.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     _checkOnboarding();
@@ -57,24 +63,47 @@ class _HomePageState extends ConsumerState<HomePage> {
         },
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.lightPink,
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home, color: AppColors.darkPink),
             label: '홈',
           ),
           NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            selectedIcon:
-                Icon(Icons.calendar_today, color: AppColors.darkPink),
+            icon: Badge(
+              isLabelVisible: _pendingCount > 0,
+              label: Text(
+                '$_pendingCount',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: AppColors.darkPink,
+              child: const Icon(Icons.calendar_today_outlined),
+            ),
+            selectedIcon: Badge(
+              isLabelVisible: _pendingCount > 0,
+              label: Text(
+                '$_pendingCount',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: AppColors.darkPink,
+              child: const Icon(Icons.calendar_today, color: AppColors.darkPink),
+            ),
             label: '예약',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.store_outlined),
             selectedIcon: Icon(Icons.store, color: AppColors.darkPink),
             label: '내 샵',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings, color: AppColors.darkPink),
             label: '설정',
