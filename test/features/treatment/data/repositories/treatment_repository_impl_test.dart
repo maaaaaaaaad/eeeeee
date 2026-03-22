@@ -68,10 +68,12 @@ void main() {
     test('should return ValidationFailure on 400', () async {
       when(() => mockDataSource.createTreatment('shop-1', any()))
           .thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           statusCode: 400,
           requestOptions: RequestOptions(path: ''),
+          data: {'code': 'INVALID_TREATMENT_NAME'},
         ),
       ));
 
@@ -171,10 +173,12 @@ void main() {
     test('should return ValidationFailure on 400', () async {
       when(() => mockDataSource.updateTreatment('t-1', any()))
           .thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           statusCode: 400,
           requestOptions: RequestOptions(path: ''),
+          data: {'code': 'INVALID_TREATMENT_NAME'},
         ),
       ));
 
