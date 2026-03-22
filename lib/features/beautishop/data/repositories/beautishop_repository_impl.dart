@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:mobile_owner/core/error/failure.dart';
+import 'package:mobile_owner/core/network/api_error_handler.dart';
 import 'package:mobile_owner/features/beautishop/data/datasources/beautishop_remote_datasource.dart';
 import 'package:mobile_owner/features/beautishop/data/models/create_beautishop_request.dart';
 import 'package:mobile_owner/features/beautishop/data/models/update_beautishop_request.dart';
@@ -33,13 +34,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       final shop = await _remoteDataSource.createShop(request);
       return Right(shop);
     } on DioException catch (e) {
-      final data = e.response?.data;
-      final detail = data is Map ? (data['detail'] ?? data['message'])?.toString() : null;
-      final statusCode = e.response?.statusCode;
-      if (statusCode == 400 || statusCode == 422) {
-        return Left(ValidationFailure(detail ?? '입력 정보를 확인해주세요'));
-      }
-      return Left(ServerFailure(detail ?? '샵 등록에 실패했습니다'));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '샵 등록에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('샵 등록에 실패했습니다'));
     }
@@ -51,9 +46,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       final shop = await _remoteDataSource.getShop(shopId);
       return Right(shop);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        (e.response?.data is Map ? (e.response?.data['detail'] ?? e.response?.data['message'])?.toString() : null) ?? '샵 정보를 불러올 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '샵 정보를 불러올 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('샵 정보를 불러올 수 없습니다'));
     }
@@ -70,13 +63,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       final shop = await _remoteDataSource.updateShop(params.shopId, request);
       return Right(shop);
     } on DioException catch (e) {
-      final data = e.response?.data;
-      final detail = data is Map ? (data['detail'] ?? data['message'])?.toString() : null;
-      final statusCode = e.response?.statusCode;
-      if (statusCode == 400 || statusCode == 422) {
-        return Left(ValidationFailure(detail ?? '입력 정보를 확인해주세요'));
-      }
-      return Left(ServerFailure(detail ?? '샵 수정에 실패했습니다'));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '샵 수정에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('샵 수정에 실패했습니다'));
     }
@@ -88,9 +75,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       await _remoteDataSource.deleteShop(shopId);
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        (e.response?.data is Map ? (e.response?.data['detail'] ?? e.response?.data['message'])?.toString() : null) ?? '샵 삭제에 실패했습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '샵 삭제에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('샵 삭제에 실패했습니다'));
     }
@@ -102,9 +87,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       final categories = await _remoteDataSource.getCategories();
       return Right(categories);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        (e.response?.data is Map ? (e.response?.data['detail'] ?? e.response?.data['message'])?.toString() : null) ?? '카테고리를 불러올 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '카테고리를 불러올 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('카테고리를 불러올 수 없습니다'));
     }
@@ -119,9 +102,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       await _remoteDataSource.setShopCategories(shopId, categoryIds);
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        (e.response?.data is Map ? (e.response?.data['detail'] ?? e.response?.data['message'])?.toString() : null) ?? '카테고리 설정에 실패했습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '카테고리 설정에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('카테고리 설정에 실패했습니다'));
     }
@@ -133,12 +114,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
       await _remoteDataSource.checkRegNum(regNum);
       return const Right(null);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 409) {
-        return const Left(ValidationFailure('이미 등록된 사업자등록번호입니다'));
-      }
-      final data = e.response?.data;
-      final detail = data is Map ? (data['detail'] ?? data['message'])?.toString() : null;
-      return Left(ServerFailure(detail ?? '사업자등록번호 확인에 실패했습니다'));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '사업자등록번호 확인에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('사업자등록번호 확인에 실패했습니다'));
     }
