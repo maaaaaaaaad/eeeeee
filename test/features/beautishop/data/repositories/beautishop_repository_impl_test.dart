@@ -97,10 +97,12 @@ void main() {
 
     test('should return ValidationFailure on 400', () async {
       when(() => mockDataSource.createShop(any())).thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           statusCode: 400,
           requestOptions: RequestOptions(path: ''),
+          data: {'code': 'INVALID_SHOP_NAME'},
         ),
       ));
 
@@ -207,10 +209,12 @@ void main() {
     test('should return ValidationFailure on 409', () async {
       when(() => mockDataSource.checkRegNum('1234567890'))
           .thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           statusCode: 409,
           requestOptions: RequestOptions(path: ''),
+          data: {'code': 'DUPLICATE_SHOP_REG_NUM'},
         ),
       ));
 
