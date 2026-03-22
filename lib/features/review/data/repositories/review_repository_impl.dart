@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:mobile_owner/core/error/failure.dart';
+import 'package:mobile_owner/core/network/api_error_handler.dart';
 import 'package:mobile_owner/features/review/data/datasources/review_remote_datasource.dart';
 import 'package:mobile_owner/features/review/domain/entities/paged_shop_reviews.dart';
 import 'package:mobile_owner/features/review/domain/repositories/review_repository.dart';
@@ -27,9 +28,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
       );
       return Right(result);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '리뷰를 불러올 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '리뷰를 불러올 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('리뷰를 불러올 수 없습니다'));
     }
@@ -49,9 +48,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
       );
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '답글을 등록할 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '답글을 등록할 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('답글을 등록할 수 없습니다'));
     }
@@ -69,9 +66,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
       );
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '답글을 삭제할 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '답글을 삭제할 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('답글을 삭제할 수 없습니다'));
     }
