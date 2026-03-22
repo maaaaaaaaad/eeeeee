@@ -64,11 +64,12 @@ void main() {
             size: any(named: 'size'),
             sort: any(named: 'sort'),
           )).thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           statusCode: 500,
           requestOptions: RequestOptions(path: ''),
-          data: {'message': '서버 오류'},
+          data: {'code': 'INTERNAL_SERVER_ERROR'},
         ),
       ));
 
@@ -82,7 +83,7 @@ void main() {
       result.fold(
         (failure) {
           expect(failure, isA<ServerFailure>());
-          expect(failure.message, '서버 오류');
+          expect(failure.message, '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요');
         },
         (_) => fail('should be left'),
       );
@@ -136,11 +137,12 @@ void main() {
             reviewId: any(named: 'reviewId'),
             content: any(named: 'content'),
           )).thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           statusCode: 403,
           requestOptions: RequestOptions(path: ''),
-          data: {'message': '권한이 없습니다'},
+          data: {'code': 'UNAUTHORIZED_REVIEW_ACCESS'},
         ),
       ));
 
@@ -153,7 +155,7 @@ void main() {
       result.fold(
         (failure) {
           expect(failure, isA<ServerFailure>());
-          expect(failure.message, '권한이 없습니다');
+          expect(failure.message, '해당 리뷰에 대한 권한이 없습니다');
         },
         (_) => fail('should be left'),
       );
