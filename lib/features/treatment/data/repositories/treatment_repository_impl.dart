@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:mobile_owner/core/error/failure.dart';
+import 'package:mobile_owner/core/network/api_error_handler.dart';
 import 'package:mobile_owner/features/treatment/data/datasources/treatment_remote_datasource.dart';
 import 'package:mobile_owner/features/treatment/data/models/create_treatment_request.dart';
 import 'package:mobile_owner/features/treatment/data/models/update_treatment_request.dart';
@@ -29,12 +30,7 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
           await _remoteDataSource.createTreatment(params.shopId, request);
       return Right(treatment);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 400) {
-        return const Left(ValidationFailure('입력 정보를 확인해주세요'));
-      }
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '시술 등록에 실패했습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '시술 등록에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('시술 등록에 실패했습니다'));
     }
@@ -46,9 +42,7 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       final treatment = await _remoteDataSource.getTreatment(treatmentId);
       return Right(treatment);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '시술 정보를 불러올 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '시술 정보를 불러올 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('시술 정보를 불러올 수 없습니다'));
     }
@@ -61,9 +55,7 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       final treatments = await _remoteDataSource.listTreatments(shopId);
       return Right(treatments);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '시술 목록을 불러올 수 없습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '시술 목록을 불러올 수 없습니다'));
     } catch (_) {
       return const Left(ServerFailure('시술 목록을 불러올 수 없습니다'));
     }
@@ -83,12 +75,7 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
           params.treatmentId, request);
       return Right(treatment);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 400) {
-        return const Left(ValidationFailure('입력 정보를 확인해주세요'));
-      }
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '시술 수정에 실패했습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '시술 수정에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('시술 수정에 실패했습니다'));
     }
@@ -100,9 +87,7 @@ class TreatmentRepositoryImpl implements TreatmentRepository {
       await _remoteDataSource.deleteTreatment(treatmentId);
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        e.response?.data?['message']?.toString() ?? '시술 삭제에 실패했습니다',
-      ));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '시술 삭제에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('시술 삭제에 실패했습니다'));
     }
