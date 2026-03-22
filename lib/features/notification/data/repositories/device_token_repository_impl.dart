@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:mobile_owner/core/error/failure.dart';
+import 'package:mobile_owner/core/network/api_error_handler.dart';
 import 'package:mobile_owner/features/notification/data/datasources/device_token_remote_datasource.dart';
 import 'package:mobile_owner/features/notification/domain/repositories/device_token_repository.dart';
 
@@ -17,7 +18,7 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
       await _remoteDataSource.registerToken(token, platform);
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(e.message ?? '토큰 등록에 실패했습니다'));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '토큰 등록에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('토큰 등록에 실패했습니다'));
     }
@@ -29,7 +30,7 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
       await _remoteDataSource.unregisterToken(token);
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(e.message ?? '토큰 해제에 실패했습니다'));
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '토큰 해제에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('토큰 해제에 실패했습니다'));
     }
