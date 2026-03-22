@@ -83,10 +83,12 @@ void main() {
             phoneNumber: any(named: 'phoneNumber'),
             nickname: any(named: 'nickname'),
           )).thenThrow(DioException(
+        type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
         response: Response(
           requestOptions: RequestOptions(path: ''),
           statusCode: 409,
+          data: {'code': 'DUPLICATE_OWNER_EMAIL'},
         ),
       ));
 
@@ -98,7 +100,13 @@ void main() {
         nickname: 'tester',
       );
 
-      expect(result, const Left(ValidationFailure('이미 등록된 정보입니다')));
+      result.fold(
+        (failure) {
+          expect(failure, isA<ValidationFailure>());
+          expect(failure.message, '이미 사용 중인 이메일입니다');
+        },
+        (_) => fail('should be left'),
+      );
     });
   });
 
