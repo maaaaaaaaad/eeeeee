@@ -138,9 +138,9 @@ class ShopRegistrationWizardNotifier
       case 2:
         return _validateOperatingTime();
       case 3:
-        return _validateDescription();
-      case 4:
         return _validateTreatments();
+      case 4:
+        return _validateDescription();
       default:
         return null;
     }
