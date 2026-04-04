@@ -40,6 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String businessNumber,
     required String phoneNumber,
     required String nickname,
+    required String emailVerificationToken,
   }) async {
     try {
       final tokenModel = await remoteDataSource.signUp(
@@ -48,12 +49,37 @@ class AuthRepositoryImpl implements AuthRepository {
         businessNumber: businessNumber,
         phoneNumber: phoneNumber,
         nickname: nickname,
+        emailVerificationToken: emailVerificationToken,
       );
       return Right(tokenModel);
     } on DioException catch (e) {
       return Left(ApiErrorHandler.fromDioException(e, fallback: '회원가입에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('회원가입에 실패했습니다'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendVerificationCode(String email) async {
+    try {
+      await remoteDataSource.sendVerificationCode(email);
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '인증코드 발송에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('인증코드 발송에 실패했습니다'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> verifyCode(String email, String code) async {
+    try {
+      final token = await remoteDataSource.verifyCode(email, code);
+      return Right(token);
+    } on DioException catch (e) {
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '인증코드 확인에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('인증코드 확인에 실패했습니다'));
     }
   }
 
