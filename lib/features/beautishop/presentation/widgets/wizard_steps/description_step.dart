@@ -1,8 +1,19 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_owner/core/network/api_error_handler.dart';
+import 'package:mobile_owner/features/auth/presentation/providers/auth_provider.dart';
+import 'package:mobile_owner/features/beautishop/data/datasources/image_remote_datasource.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/shop_registration_wizard_provider.dart';
-import 'package:mobile_owner/features/beautishop/presentation/widgets/shop_image_url_list.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/shop_image_picker.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+
+final imageRemoteDataSourceProvider = Provider<ImageRemoteDataSource>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return ImageRemoteDataSourceImpl(apiClient: apiClient);
+});
 
 class DescriptionStep extends ConsumerStatefulWidget {
   const DescriptionStep({super.key});
@@ -26,6 +37,19 @@ class _DescriptionStepState extends ConsumerState<DescriptionStep> {
   void dispose() {
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<String> _uploadImage(File file) async {
+    try {
+      final datasource = ref.read(imageRemoteDataSourceProvider);
+      return await datasource.uploadImage(file);
+    } on DioException catch (e) {
+      final failure = ApiErrorHandler.fromDioException(
+        e,
+        fallback: '이미지 업로드에 실패했습니다',
+      );
+      throw Exception(failure.message);
+    }
   }
 
   @override
@@ -69,7 +93,7 @@ class _DescriptionStepState extends ConsumerState<DescriptionStep> {
           ),
           const SizedBox(height: 24),
           const Text(
-            '이미지 URL',
+            '매장 사진',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -77,11 +101,12 @@ class _DescriptionStepState extends ConsumerState<DescriptionStep> {
             ),
           ),
           const SizedBox(height: 8),
-          ShopImageUrlList(
+          ShopImagePicker(
             initialUrls: images,
             onChanged: (urls) => ref
                 .read(shopRegistrationWizardProvider.notifier)
                 .updateShopImages(urls),
+            onUpload: _uploadImage,
           ),
         ],
       ),
