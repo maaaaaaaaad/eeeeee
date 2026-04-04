@@ -10,7 +10,10 @@ abstract class AuthRemoteDataSource {
     required String businessNumber,
     required String phoneNumber,
     required String nickname,
+    required String emailVerificationToken,
   });
+  Future<void> sendVerificationCode(String email);
+  Future<String> verifyCode(String email, String code);
   Future<AuthTokenModel> refreshToken(String refreshToken);
   Future<void> logout();
   Future<OwnerModel> getCurrentOwner();
@@ -41,6 +44,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String businessNumber,
     required String phoneNumber,
     required String nickname,
+    required String emailVerificationToken,
   }) async {
     final response = await apiClient.post<Map<String, dynamic>>(
       '/api/sign-up/owner',
@@ -50,10 +54,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'businessNumber': businessNumber,
         'phoneNumber': phoneNumber,
         'nickname': nickname,
+        'emailVerificationToken': emailVerificationToken,
       },
     );
 
     return AuthTokenModel.fromJson(response.data!);
+  }
+
+  @override
+  Future<void> sendVerificationCode(String email) async {
+    await apiClient.post(
+      '/api/verification/send',
+      data: {'target': email, 'type': 'EMAIL'},
+    );
+  }
+
+  @override
+  Future<String> verifyCode(String email, String code) async {
+    final response = await apiClient.post<Map<String, dynamic>>(
+      '/api/verification/verify',
+      data: {'target': email, 'code': code, 'type': 'EMAIL'},
+    );
+
+    return response.data!['verificationToken'] as String;
   }
 
   @override
