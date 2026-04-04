@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/sign_up_provider.dart';
@@ -17,8 +19,11 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _codeController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  Timer? _resendTimer;
+  int _resendCooldown = 0;
 
   @override
   void initState() {
@@ -33,13 +38,50 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _codeController.dispose();
+    _resendTimer?.cancel();
     super.dispose();
+  }
+
+  void _startResendCooldown() {
+    _resendCooldown = 60;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _resendCooldown--;
+        if (_resendCooldown <= 0) timer.cancel();
+      });
+    });
+  }
+
+  void _onSendCode() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('올바른 이메일을 입력해주세요')),
+      );
+      return;
+    }
+
+    ref.read(signUpNotifierProvider.notifier).updateEmail(email);
+    ref.read(signUpNotifierProvider.notifier).sendVerificationCode();
+    _startResendCooldown();
+  }
+
+  void _onVerifyCode() {
+    final code = _codeController.text.trim();
+    if (code.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('6자리 인증코드를 입력해주세요')),
+      );
+      return;
+    }
+    ref.read(signUpNotifierProvider.notifier).verifyCode(code);
   }
 
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
       final notifier = ref.read(signUpNotifierProvider.notifier);
-      notifier.updateEmail(_emailController.text.trim());
       notifier.updatePassword(_passwordController.text);
       widget.onNext();
     }
@@ -47,6 +89,21 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
 
   @override
   Widget build(BuildContext context) {
+    final signUpState = ref.watch(signUpNotifierProvider);
+    final isVerified = signUpState.isEmailVerified;
+    final verificationStatus = signUpState.verificationStatus;
+    final showCodeInput = verificationStatus == VerificationStatus.codeSent ||
+        verificationStatus == VerificationStatus.verifying;
+
+    ref.listen<SignUpState>(signUpNotifierProvider, (prev, next) {
+      if (next.verificationError != null &&
+          next.verificationError != prev?.verificationError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.verificationError!)),
+        );
+      }
+    });
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -71,28 +128,141 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
               ),
             ),
             const SizedBox(height: 32),
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: '이메일',
-                hintText: 'example@email.com',
-                prefixIcon: const Icon(Icons.email_outlined),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    readOnly: isVerified,
+                    decoration: InputDecoration(
+                      labelText: '이메일',
+                      hintText: 'example@email.com',
+                      prefixIcon: Icon(
+                        isVerified ? Icons.check_circle : Icons.email_outlined,
+                        color: isVerified ? Colors.green : null,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '이메일을 입력해주세요';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        return '올바른 이메일 형식이 아닙니다';
+                      }
+                      if (!isVerified) {
+                        return '이메일 인증을 완료해주세요';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '이메일을 입력해주세요';
-                }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                  return '올바른 이메일 형식이 아닙니다';
-                }
-                return null;
-              },
+                if (!isVerified) ...[
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: verificationStatus == VerificationStatus.sending ||
+                              _resendCooldown > 0
+                          ? null
+                          : _onSendCode,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: verificationStatus == VerificationStatus.sending
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              _resendCooldown > 0
+                                  ? '${_resendCooldown}s'
+                                  : showCodeInput
+                                      ? '재전송'
+                                      : '인증',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                    ),
+                  ),
+                ],
+              ],
             ),
+            if (showCodeInput) ...[
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _codeController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        labelText: '인증코드 6자리',
+                        counterText: '',
+                        prefixIcon: const Icon(Icons.pin_outlined),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: verificationStatus == VerificationStatus.verifying
+                          ? null
+                          : _onVerifyCode,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: verificationStatus == VerificationStatus.verifying
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('확인', style: TextStyle(fontSize: 14)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            if (isVerified) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    '이메일 인증이 완료되었습니다',
+                    style: TextStyle(fontSize: 13, color: Colors.green),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
             TextFormField(
               controller: _passwordController,
@@ -175,7 +345,7 @@ class _SignUpStep1State extends ConsumerState<SignUpStep1> {
             ),
             const SizedBox(height: 32),
             FilledButton(
-              onPressed: _onNext,
+              onPressed: isVerified ? _onNext : null,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: AppColors.primary,
