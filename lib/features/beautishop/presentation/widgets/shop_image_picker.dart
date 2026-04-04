@@ -211,7 +211,7 @@ class _ImageTile extends StatelessWidget {
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (context, error, stackTrace) => Container(
                       color: AppColors.divider,
                       child: const Icon(Icons.broken_image),
                     ),
