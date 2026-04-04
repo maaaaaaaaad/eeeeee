@@ -21,7 +21,11 @@ class SignUpNotifier extends Notifier<SignUpState> {
   }
 
   void updateEmail(String email) {
-    state = state.copyWith(email: email);
+    state = state.copyWith(
+      email: email,
+      isEmailVerified: false,
+      emailVerificationToken: '',
+    );
   }
 
   void updatePassword(String password) {
@@ -52,6 +56,50 @@ class SignUpNotifier extends Notifier<SignUpState> {
     }
   }
 
+  Future<void> sendVerificationCode() async {
+    if (state.email.isEmpty) return;
+
+    state = state.copyWith(
+      verificationStatus: VerificationStatus.sending,
+      verificationError: null,
+    );
+
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.sendVerificationCode(state.email);
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        verificationStatus: VerificationStatus.initial,
+        verificationError: failure.message,
+      ),
+      (_) => state = state.copyWith(
+        verificationStatus: VerificationStatus.codeSent,
+      ),
+    );
+  }
+
+  Future<void> verifyCode(String code) async {
+    state = state.copyWith(
+      verificationStatus: VerificationStatus.verifying,
+      verificationError: null,
+    );
+
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.verifyCode(state.email, code);
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        verificationStatus: VerificationStatus.codeSent,
+        verificationError: failure.message,
+      ),
+      (token) => state = state.copyWith(
+        verificationStatus: VerificationStatus.verified,
+        isEmailVerified: true,
+        emailVerificationToken: token,
+      ),
+    );
+  }
+
   Future<void> submit() async {
     state = state.copyWith(status: SignUpStatus.loading);
 
@@ -63,6 +111,7 @@ class SignUpNotifier extends Notifier<SignUpState> {
       businessNumber: BusinessNumberFormatter.stripHyphens(state.businessNumber),
       phoneNumber: PhoneNumberFormatter.stripHyphens(state.phoneNumber),
       nickname: state.nickname,
+      emailVerificationToken: state.emailVerificationToken,
     ));
 
     result.fold(
@@ -88,6 +137,10 @@ class SignUpState extends Equatable {
   final String nickname;
   final SignUpStatus status;
   final String? errorMessage;
+  final bool isEmailVerified;
+  final String emailVerificationToken;
+  final VerificationStatus verificationStatus;
+  final String? verificationError;
 
   const SignUpState({
     this.currentStep = 0,
@@ -98,6 +151,10 @@ class SignUpState extends Equatable {
     this.nickname = '',
     this.status = SignUpStatus.initial,
     this.errorMessage,
+    this.isEmailVerified = false,
+    this.emailVerificationToken = '',
+    this.verificationStatus = VerificationStatus.initial,
+    this.verificationError,
   });
 
   SignUpState copyWith({
@@ -109,6 +166,10 @@ class SignUpState extends Equatable {
     String? nickname,
     SignUpStatus? status,
     String? errorMessage,
+    bool? isEmailVerified,
+    String? emailVerificationToken,
+    VerificationStatus? verificationStatus,
+    String? verificationError,
   }) {
     return SignUpState(
       currentStep: currentStep ?? this.currentStep,
@@ -119,6 +180,10 @@ class SignUpState extends Equatable {
       nickname: nickname ?? this.nickname,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
+      isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+      emailVerificationToken: emailVerificationToken ?? this.emailVerificationToken,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      verificationError: verificationError ?? this.verificationError,
     );
   }
 
@@ -136,6 +201,10 @@ class SignUpState extends Equatable {
         nickname,
         status,
         errorMessage,
+        isEmailVerified,
+        emailVerificationToken,
+        verificationStatus,
+        verificationError,
       ];
 }
 
@@ -144,4 +213,12 @@ enum SignUpStatus {
   loading,
   success,
   error,
+}
+
+enum VerificationStatus {
+  initial,
+  sending,
+  codeSent,
+  verifying,
+  verified,
 }
