@@ -39,6 +39,7 @@ void main() {
             businessNumber: any(named: 'businessNumber'),
             phoneNumber: any(named: 'phoneNumber'),
             nickname: any(named: 'nickname'),
+            emailVerificationToken: any(named: 'emailVerificationToken'),
           )).thenAnswer((_) async => testTokenModel);
 
       await repository.signUp(
@@ -47,6 +48,7 @@ void main() {
         businessNumber: '1234567890',
         phoneNumber: '01012345678',
         nickname: 'tester',
+        emailVerificationToken: 'test-token',
       );
 
       verifyNever(() => mockTokenStorage.saveTokens(
@@ -62,6 +64,7 @@ void main() {
             businessNumber: any(named: 'businessNumber'),
             phoneNumber: any(named: 'phoneNumber'),
             nickname: any(named: 'nickname'),
+            emailVerificationToken: any(named: 'emailVerificationToken'),
           )).thenAnswer((_) async => testTokenModel);
 
       final result = await repository.signUp(
@@ -70,6 +73,7 @@ void main() {
         businessNumber: '1234567890',
         phoneNumber: '01012345678',
         nickname: 'tester',
+        emailVerificationToken: 'test-token',
       );
 
       expect(result, const Right(testTokenModel));
@@ -82,6 +86,7 @@ void main() {
             businessNumber: any(named: 'businessNumber'),
             phoneNumber: any(named: 'phoneNumber'),
             nickname: any(named: 'nickname'),
+            emailVerificationToken: any(named: 'emailVerificationToken'),
           )).thenThrow(DioException(
         type: DioExceptionType.badResponse,
         requestOptions: RequestOptions(path: ''),
@@ -98,6 +103,7 @@ void main() {
         businessNumber: '1234567890',
         phoneNumber: '01012345678',
         nickname: 'tester',
+        emailVerificationToken: 'test-token',
       );
 
       result.fold(
