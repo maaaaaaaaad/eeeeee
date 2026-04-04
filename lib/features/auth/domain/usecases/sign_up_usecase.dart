@@ -17,6 +17,7 @@ class SignUpUseCase extends UseCase<Either<Failure, AuthToken>, SignUpParams> {
       businessNumber: params.businessNumber,
       phoneNumber: params.phoneNumber,
       nickname: params.nickname,
+      emailVerificationToken: params.emailVerificationToken,
     );
   }
 }
@@ -27,6 +28,7 @@ class SignUpParams {
   final String businessNumber;
   final String phoneNumber;
   final String nickname;
+  final String emailVerificationToken;
 
   const SignUpParams({
     required this.email,
@@ -34,5 +36,6 @@ class SignUpParams {
     required this.businessNumber,
     required this.phoneNumber,
     required this.nickname,
+    required this.emailVerificationToken,
   });
 }
