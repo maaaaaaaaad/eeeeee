@@ -179,7 +179,7 @@ void main() {
       await notifier.loadReservations();
       await notifier.refresh();
 
-      verify(() => mockUseCase()).called(2);
+      verify(() => mockUseCase()).called(3);
     });
 
     test('should return empty lists when no matching status', () async {
