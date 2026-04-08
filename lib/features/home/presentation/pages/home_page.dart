@@ -9,6 +9,7 @@ import 'package:mobile_owner/features/notification/presentation/providers/notifi
 import 'package:mobile_owner/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:mobile_owner/features/reservation/presentation/providers/owner_reservation_list_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/widgets/onboarding_bottom_sheet.dart';
+import 'package:mobile_owner/features/settings/presentation/pages/settings_page.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -26,7 +27,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     HomeTab(),
     ReservationTab(),
     MyShopTab(),
-    _SettingsPlaceholder(),
+    SettingsPage(),
   ];
 
   @override
@@ -157,32 +158,3 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-class _SettingsPlaceholder extends StatelessWidget {
-  const _SettingsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.settings_outlined, size: 48, color: AppColors.textHint),
-          SizedBox(height: 16),
-          Text(
-            '설정',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            '준비 중입니다',
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-}
