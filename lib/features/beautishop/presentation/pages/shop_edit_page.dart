@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_owner/core/network/api_error_handler.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/update_shop_params.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/shop_edit_provider.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_time_form.dart';
-import 'package:mobile_owner/features/beautishop/presentation/widgets/shop_image_url_list.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/shop_image_picker.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/description_step.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
@@ -34,6 +39,19 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
   void dispose() {
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<String> _uploadImage(File file) async {
+    try {
+      final datasource = ref.read(imageRemoteDataSourceProvider);
+      return await datasource.uploadImage(file);
+    } on DioException catch (e) {
+      final failure = ApiErrorHandler.fromDioException(
+        e,
+        fallback: '이미지 업로드에 실패했습니다',
+      );
+      throw Exception(failure.message);
+    }
   }
 
   @override
@@ -102,7 +120,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
             ),
             const SizedBox(height: 24),
             const Text(
-              '이미지 URL',
+              '매장 사진',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -110,9 +128,10 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
               ),
             ),
             const SizedBox(height: 12),
-            ShopImageUrlList(
+            ShopImagePicker(
               initialUrls: _imageUrls,
               onChanged: (urls) => _imageUrls = urls,
+              onUpload: _uploadImage,
             ),
             const SizedBox(height: 32),
             SizedBox(
