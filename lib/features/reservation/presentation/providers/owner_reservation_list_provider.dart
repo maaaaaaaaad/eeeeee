@@ -12,6 +12,7 @@ class OwnerReservationListNotifier
     extends AutoDisposeNotifier<OwnerReservationListState> {
   @override
   OwnerReservationListState build() {
+    Future.microtask(() => loadReservations());
     return const OwnerReservationListState();
   }
 
