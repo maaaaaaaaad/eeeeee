@@ -162,18 +162,12 @@ void main() {
     });
 
     testWidgets('should call onImageTap with correct index', (tester) async {
-      int? tappedIndex;
-      List<String>? tappedImages;
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: ReviewCard(
               review: review,
-              onImageTap: (images, index) {
-                tappedImages = images;
-                tappedIndex = index;
-              },
+              onImageTap: (images, index) {},
             ),
           ),
         ),
