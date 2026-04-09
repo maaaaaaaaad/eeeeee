@@ -181,7 +181,7 @@ void main() {
 
       final imageTaps = find.byKey(const Key('review_image_0'));
       if (imageTaps.evaluate().isNotEmpty) {
-        await tester.tap(imageTaps);
+        await tester.tap(imageTaps, warnIfMissed: false);
         expect(tappedIndex, 0);
         expect(tappedImages, review.images);
       }
