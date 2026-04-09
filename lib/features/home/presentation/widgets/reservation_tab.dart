@@ -36,7 +36,7 @@ class _ReservationTabState extends ConsumerState<ReservationTab> {
       return _buildErrorState(state.error!);
     }
 
-    if (state.reservations.isEmpty) {
+    if (state.pendingReservations.isEmpty && state.confirmedReservations.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -106,12 +106,17 @@ class _ReservationTabState extends ConsumerState<ReservationTab> {
           ),
           SizedBox(height: 16),
           Text(
-            '예약이 없습니다',
+            '현재 예약이 없습니다',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            '새로운 예약이 들어오면 여기에 표시됩니다',
+            style: TextStyle(fontSize: 13, color: AppColors.textHint),
           ),
         ],
       ),
