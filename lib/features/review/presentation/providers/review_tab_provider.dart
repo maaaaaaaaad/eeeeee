@@ -12,6 +12,14 @@ class ReviewTabNotifier extends Notifier<ReviewTabState> {
 
   @override
   ReviewTabState build() {
+    ref.listen(homeNotifierProvider, (prev, next) {
+      if (next.shops.isNotEmpty && (prev == null || prev.shops.isEmpty)) {
+        _loadUnreadCounts();
+      }
+      if (prev != null && prev.shops.isNotEmpty && next.shops.isNotEmpty) {
+        _loadUnreadCounts();
+      }
+    });
     Future.microtask(() => _loadUnreadCounts());
     return const ReviewTabState();
   }
@@ -25,9 +33,14 @@ class ReviewTabNotifier extends Notifier<ReviewTabState> {
     final unreadMap = <String, int>{};
 
     for (final shop in shops) {
-      final lastRead = prefs.getInt('$_lastReadPrefix${shop.id}') ?? 0;
-      final unread = shop.reviewCount - lastRead;
-      if (unread > 0) unreadMap[shop.id] = unread;
+      final hasKey = prefs.containsKey('$_lastReadPrefix${shop.id}');
+      if (!hasKey) {
+        if (shop.reviewCount > 0) unreadMap[shop.id] = shop.reviewCount;
+      } else {
+        final lastRead = prefs.getInt('$_lastReadPrefix${shop.id}') ?? 0;
+        final unread = shop.reviewCount - lastRead;
+        if (unread > 0) unreadMap[shop.id] = unread;
+      }
     }
 
     state = state.copyWith(unreadCounts: unreadMap);
