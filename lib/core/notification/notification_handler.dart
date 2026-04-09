@@ -4,23 +4,31 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/core/notification/local_notification_service.dart';
 import 'package:mobile_owner/features/reservation/presentation/pages/reservation_detail_by_id_page.dart';
+import 'package:mobile_owner/features/review/presentation/pages/review_list_page.dart';
 
 class NotificationHandler {
   final GlobalKey<NavigatorState> navigatorKey;
   final LocalNotificationService? _localNotificationService;
   final VoidCallback? _onReservationNotification;
+  final VoidCallback? _onReviewNotification;
 
   NotificationHandler({
     required this.navigatorKey,
     LocalNotificationService? localNotificationService,
     VoidCallback? onReservationNotification,
+    VoidCallback? onReviewNotification,
   })  : _localNotificationService = localNotificationService,
-        _onReservationNotification = onReservationNotification;
+        _onReservationNotification = onReservationNotification,
+        _onReviewNotification = onReviewNotification;
 
   static const _reservationTypes = {
     'RESERVATION_CREATED',
     'RESERVATION_CANCELLED',
     'UNPROCESSED_RESERVATION_REMINDER',
+  };
+
+  static const _reviewTypes = {
+    'NEW_REVIEW',
   };
 
   void handleForegroundMessage(RemoteMessage message) {
@@ -43,6 +51,9 @@ class NotificationHandler {
     if (isReservationNotification(type)) {
       _onReservationNotification?.call();
     }
+    if (isReviewNotification(type)) {
+      _onReviewNotification?.call();
+    }
   }
 
   void handleNotificationTap(Map<String, dynamic> data) {
@@ -55,6 +66,22 @@ class NotificationHandler {
         navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (_) => ReservationDetailByIdPage(reservationId: reservationId),
+          ),
+        );
+      }
+    }
+    if (isReviewNotification(type)) {
+      _onReviewNotification?.call();
+
+      final shopId = data['shopId'] as String?;
+      if (shopId != null) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => ReviewListPage(
+              shopId: shopId,
+              averageRating: 0,
+              reviewCount: 0,
+            ),
           ),
         );
       }
@@ -77,6 +104,10 @@ class NotificationHandler {
 
   static bool isReservationNotification(String? type) {
     return type != null && _reservationTypes.contains(type);
+  }
+
+  static bool isReviewNotification(String? type) {
+    return type != null && _reviewTypes.contains(type);
   }
 
   static String buildPayload(Map<String, dynamic> data) {
