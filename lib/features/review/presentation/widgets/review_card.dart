@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/features/review/domain/entities/shop_review.dart';
 import 'package:mobile_owner/features/review/presentation/widgets/rating_stars_display.dart';
@@ -203,12 +204,12 @@ class ReviewCard extends StatelessWidget {
           onTap: () => onImageTap(review.images, index),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              review.images[index],
+            child: CachedNetworkImage(
+              imageUrl: review.images[index],
               width: 72,
               height: 72,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
+              errorWidget: (context, url, error) => Container(
                 width: 72,
                 height: 72,
                 color: AppColors.backgroundMedium,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/beautishop/presentation/pages/category_selection_page.dart';
@@ -119,12 +120,18 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
               separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (_, index) => ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  shop.images[index],
+                child: CachedNetworkImage(
+                  imageUrl: shop.images[index],
                   width: 200,
                   height: 200,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
+                  placeholder: (context, url) => Container(
+                    width: 200,
+                    height: 200,
+                    color: AppColors.backgroundMedium,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  ),
+                  errorWidget: (context, url, error) => Container(
                     width: 200,
                     height: 200,
                     color: AppColors.backgroundMedium,

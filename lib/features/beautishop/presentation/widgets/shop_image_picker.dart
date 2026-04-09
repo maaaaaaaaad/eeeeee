@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -206,12 +207,12 @@ class _ImageTile extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: item.url != null
-                ? Image.network(
-                    item.url!,
+                ? CachedNetworkImage(
+                    imageUrl: item.url!,
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
+                    errorWidget: (context, url, error) => Container(
                       color: AppColors.divider,
                       child: const Icon(Icons.broken_image),
                     ),

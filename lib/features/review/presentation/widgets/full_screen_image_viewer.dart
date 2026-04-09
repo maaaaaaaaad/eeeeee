@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
@@ -58,10 +59,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
               minScale: 0.5,
               maxScale: 3.0,
               child: Center(
-                child: Image.network(
-                  widget.images[index],
+                child: CachedNetworkImage(
+                  imageUrl: widget.images[index],
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Icon(
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(
                     Icons.broken_image,
                     size: 48,
                     color: AppColors.textHint,
