@@ -85,7 +85,7 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('예약이 없습니다'), findsOneWidget);
+      expect(find.text('현재 예약이 없습니다'), findsOneWidget);
     });
 
     testWidgets('should display pending section header with count',
