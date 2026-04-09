@@ -9,6 +9,8 @@ import 'package:mobile_owner/features/notification/presentation/providers/notifi
 import 'package:mobile_owner/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:mobile_owner/features/reservation/presentation/providers/owner_reservation_list_provider.dart';
 import 'package:mobile_owner/features/onboarding/presentation/widgets/onboarding_bottom_sheet.dart';
+import 'package:mobile_owner/features/review/presentation/providers/review_tab_provider.dart';
+import 'package:mobile_owner/features/review/presentation/widgets/review_tab.dart';
 import 'package:mobile_owner/features/settings/presentation/pages/settings_page.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
@@ -26,6 +28,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   static const _tabs = [
     HomeTab(),
     ReservationTab(),
+    ReviewTab(),
     MyShopTab(),
     SettingsPage(),
   ];
@@ -49,6 +52,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   int get _pendingCount {
     final state = ref.watch(ownerReservationListNotifierProvider);
     return state.pendingReservations.length;
+  }
+
+  int get _unreadReviewCount {
+    final state = ref.watch(reviewTabNotifierProvider);
+    return state.totalUnreadCount;
   }
 
   @override
@@ -98,6 +106,35 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: const Icon(Icons.calendar_today, color: AppColors.darkPink),
             ),
             label: '예약',
+          ),
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible: _unreadReviewCount > 0,
+              label: Text(
+                '$_unreadReviewCount',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: AppColors.darkPink,
+              child: const Icon(Icons.rate_review_outlined),
+            ),
+            selectedIcon: Badge(
+              isLabelVisible: _unreadReviewCount > 0,
+              label: Text(
+                '$_unreadReviewCount',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: AppColors.darkPink,
+              child: const Icon(Icons.rate_review, color: AppColors.darkPink),
+            ),
+            label: '리뷰',
           ),
           const NavigationDestination(
             icon: Icon(Icons.store_outlined),
@@ -157,4 +194,3 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 }
-
