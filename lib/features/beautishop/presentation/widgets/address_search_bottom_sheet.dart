@@ -32,12 +32,10 @@ class _AddressSearchBottomSheetState
     final state = ref.watch(addressSearchNotifierProvider);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    final topPadding = MediaQuery.of(context).padding.top;
-
     return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset, top: topPadding),
+      padding: EdgeInsets.only(bottom: bottomInset),
       child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.85,
+        height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
           children: [
             const SizedBox(height: 12),
