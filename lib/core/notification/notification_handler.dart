@@ -25,6 +25,7 @@ class NotificationHandler {
     'RESERVATION_CREATED',
     'RESERVATION_CANCELLED',
     'UNPROCESSED_RESERVATION_REMINDER',
+    'RESERVATION_REMINDER',
   };
 
   static const _reviewTypes = {
