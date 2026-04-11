@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/core/usecase/usecase.dart';
 import 'package:mobile_owner/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:mobile_owner/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/account_section.dart';
@@ -52,5 +53,9 @@ class SettingsPage extends ConsumerWidget {
   void _handleLogout(BuildContext context, WidgetRef ref) {
     ref.read(_logoutUseCaseProvider).call(NoParams());
     ref.read(authNotifierProvider.notifier).logout();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
   }
 }
