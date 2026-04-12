@@ -63,9 +63,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     _checkOnboarding();
 
-    return Scaffold(
-      body: SafeArea(child: _tabs[_currentIndex]),
-      bottomNavigationBar: NavigationBar(
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          setState(() => _currentIndex = 0);
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(child: _tabs[_currentIndex]),
+        bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
           setState(() => _currentIndex = index);
@@ -147,6 +154,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             label: '설정',
           ),
         ],
+      ),
       ),
     );
   }
