@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
@@ -11,12 +12,14 @@ class ShopImagePicker extends StatefulWidget {
   final List<String> initialUrls;
   final ValueChanged<List<String>> onChanged;
   final Future<String> Function(File file) onUpload;
+  final ValueChanged<bool>? onUploadingChanged;
 
   const ShopImagePicker({
     super.key,
     this.initialUrls = const [],
     required this.onChanged,
     required this.onUpload,
+    this.onUploadingChanged,
   });
 
   @override
@@ -34,6 +37,7 @@ class _ImageItem {
 class _ShopImagePickerState extends State<ShopImagePicker> {
   final _picker = ImagePicker();
   late List<_ImageItem> _items;
+  int _uploadingCount = 0;
 
   @override
   void initState() {
@@ -51,7 +55,35 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
     widget.onChanged(urls);
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  void _updateUploadingState(int delta) {
+    _uploadingCount += delta;
+    widget.onUploadingChanged?.call(_uploadingCount > 0);
+  }
+
+  Future<File?> _cropImage(File file) async {
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: file.path,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: '사진 편집',
+          toolbarColor: AppColors.pastelPink,
+          toolbarWidgetColor: Colors.white,
+          activeControlsWidgetColor: AppColors.pastelPink,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(
+          title: '사진 편집',
+          cancelButtonTitle: '취소',
+          doneButtonTitle: '완료',
+        ),
+      ],
+    );
+    if (cropped == null) return null;
+    return File(cropped.path);
+  }
+
+  Future<void> _pickAndUploadSingle(ImageSource source) async {
     if (_items.length >= ShopImagePicker.maxImages) return;
 
     final picked = await _picker.pickImage(
@@ -62,18 +94,51 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
     );
     if (picked == null) return;
 
-    final file = File(picked.path);
+    final edited = await _cropImage(File(picked.path));
+    if (edited == null) return;
+
+    await _uploadFile(edited);
+  }
+
+  Future<void> _pickMultipleFromGallery() async {
+    final remaining = ShopImagePicker.maxImages - _items.length;
+    if (remaining <= 0) return;
+
+    final picked = await _picker.pickMultiImage(
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+      limit: remaining,
+    );
+    if (picked.isEmpty) return;
+
+    final filesToUpload = picked.take(remaining).toList();
+
+    for (final xFile in filesToUpload) {
+      if (_items.length >= ShopImagePicker.maxImages) break;
+
+      final edited = await _cropImage(File(xFile.path));
+      if (edited == null) continue;
+
+      await _uploadFile(edited);
+    }
+  }
+
+  Future<void> _uploadFile(File file) async {
     final item = _ImageItem(localFile: file, isUploading: true);
 
     setState(() {
       _items.add(item);
     });
+    _updateUploadingState(1);
 
     try {
       final url = await widget.onUpload(file);
       setState(() {
-        item.isUploading = false;
-        _items[_items.indexOf(item)] = _ImageItem(url: url);
+        final idx = _items.indexOf(item);
+        if (idx >= 0) {
+          _items[idx] = _ImageItem(url: url);
+        }
       });
       _notifyChanged();
     } catch (e) {
@@ -85,6 +150,8 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
           SnackBar(content: Text('이미지 업로드에 실패했습니다: $e')),
         );
       }
+    } finally {
+      _updateUploadingState(-1);
     }
   }
 
@@ -100,7 +167,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
               title: const Text('카메라로 촬영'),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.camera);
+                _pickAndUploadSingle(ImageSource.camera);
               },
             ),
             ListTile(
@@ -108,7 +175,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
               title: const Text('앨범에서 선택'),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
+                _pickMultipleFromGallery();
               },
             ),
           ],
