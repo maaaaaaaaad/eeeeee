@@ -111,6 +111,7 @@ class _ShopRegistrationWizardPageState
     final isLastStep =
         state.currentStep == ShopRegistrationWizardNotifier.totalSteps - 1;
     final isLoading = state.submitStatus == SubmitStatus.loading;
+    final isUploading = state.isImageUploading;
 
     return Container(
       padding: EdgeInsets.only(
@@ -146,7 +147,7 @@ class _ShopRegistrationWizardPageState
           Expanded(
             flex: isFirstStep ? 1 : 1,
             child: FilledButton(
-              onPressed: isLoading ? null : (isLastStep ? _onSubmit : _onNext),
+              onPressed: (isLoading || isUploading) ? null : (isLastStep ? _onSubmit : _onNext),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.pastelPink,
                 padding: const EdgeInsets.symmetric(vertical: 14),
