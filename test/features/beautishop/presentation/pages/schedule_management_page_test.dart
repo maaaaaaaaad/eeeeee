@@ -36,9 +36,9 @@ void main() {
     latitude: 37.5665,
     longitude: 126.978,
     operatingTime: {
-      'MONDAY': '09:00-18:00',
-      'TUESDAY': '09:00-18:00',
-      'WEDNESDAY': '09:00-18:00',
+      'monday': '09:00-18:00',
+      'tuesday': '09:00-18:00',
+      'wednesday': '09:00-18:00',
     },
     description: '테스트 설명',
     images: ['img1.jpg'],
