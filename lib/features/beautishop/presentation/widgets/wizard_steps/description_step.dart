@@ -107,6 +107,9 @@ class _DescriptionStepState extends ConsumerState<DescriptionStep> {
                 .read(shopRegistrationWizardProvider.notifier)
                 .updateShopImages(urls),
             onUpload: _uploadImage,
+            onUploadingChanged: (uploading) => ref
+                .read(shopRegistrationWizardProvider.notifier)
+                .setImageUploading(uploading),
           ),
         ],
       ),
