@@ -2,22 +2,22 @@ class OperatingDays {
   OperatingDays._();
 
   static const List<String> orderedKeys = [
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-    'SUNDAY',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
   ];
 
   static const Map<String, String> toKorean = {
-    'MONDAY': '월',
-    'TUESDAY': '화',
-    'WEDNESDAY': '수',
-    'THURSDAY': '목',
-    'FRIDAY': '금',
-    'SATURDAY': '토',
-    'SUNDAY': '일',
+    'monday': '월',
+    'tuesday': '화',
+    'wednesday': '수',
+    'thursday': '목',
+    'friday': '금',
+    'saturday': '토',
+    'sunday': '일',
   };
 }
