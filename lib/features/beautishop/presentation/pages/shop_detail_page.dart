@@ -30,9 +30,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
     super.initState();
     Future.microtask(() {
       ref.read(shopDetailNotifierProvider(widget.shopId).notifier).loadShop();
-      ref
-          .read(treatmentListNotifierProvider(widget.shopId).notifier)
-          .loadTreatments();
     });
   }
 
