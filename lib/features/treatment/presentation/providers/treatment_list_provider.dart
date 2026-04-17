@@ -12,6 +12,7 @@ class TreatmentListNotifier
     extends AutoDisposeFamilyNotifier<TreatmentListState, String> {
   @override
   TreatmentListState build(String shopId) {
+    Future.microtask(() => loadTreatments());
     return const TreatmentListState();
   }
 
