@@ -62,6 +62,10 @@ class ShopRegistrationWizardNotifier
     state = state.copyWith(shopImages: value);
   }
 
+  void setImageUploading(bool value) {
+    state = state.copyWith(isImageUploading: value);
+  }
+
   void addTreatmentDraft(TreatmentDraft draft) {
     state = state.copyWith(
       treatmentDrafts: [...state.treatmentDrafts, draft],
@@ -279,6 +283,7 @@ class ShopRegistrationWizardState extends Equatable {
   final List<String> shopImages;
 
   final List<TreatmentDraft> treatmentDrafts;
+  final bool isImageUploading;
 
   const ShopRegistrationWizardState({
     this.currentStep = 0,
@@ -295,6 +300,7 @@ class ShopRegistrationWizardState extends Equatable {
     this.shopDescription = '',
     this.shopImages = const [],
     this.treatmentDrafts = const [],
+    this.isImageUploading = false,
   });
 
   ShopRegistrationWizardState copyWith({
@@ -313,6 +319,7 @@ class ShopRegistrationWizardState extends Equatable {
     String? shopDescription,
     List<String>? shopImages,
     List<TreatmentDraft>? treatmentDrafts,
+    bool? isImageUploading,
   }) {
     return ShopRegistrationWizardState(
       currentStep: currentStep ?? this.currentStep,
@@ -331,6 +338,7 @@ class ShopRegistrationWizardState extends Equatable {
       shopDescription: shopDescription ?? this.shopDescription,
       shopImages: shopImages ?? this.shopImages,
       treatmentDrafts: treatmentDrafts ?? this.treatmentDrafts,
+      isImageUploading: isImageUploading ?? this.isImageUploading,
     );
   }
 
@@ -350,5 +358,6 @@ class ShopRegistrationWizardState extends Equatable {
         shopDescription,
         shopImages,
         treatmentDrafts,
+        isImageUploading,
       ];
 }
