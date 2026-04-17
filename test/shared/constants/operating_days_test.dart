@@ -8,18 +8,18 @@ void main() {
     });
 
     test('should have correct English to Korean mapping', () {
-      expect(OperatingDays.toKorean['MONDAY'], '월');
-      expect(OperatingDays.toKorean['TUESDAY'], '화');
-      expect(OperatingDays.toKorean['WEDNESDAY'], '수');
-      expect(OperatingDays.toKorean['THURSDAY'], '목');
-      expect(OperatingDays.toKorean['FRIDAY'], '금');
-      expect(OperatingDays.toKorean['SATURDAY'], '토');
-      expect(OperatingDays.toKorean['SUNDAY'], '일');
+      expect(OperatingDays.toKorean['monday'], '월');
+      expect(OperatingDays.toKorean['tuesday'], '화');
+      expect(OperatingDays.toKorean['wednesday'], '수');
+      expect(OperatingDays.toKorean['thursday'], '목');
+      expect(OperatingDays.toKorean['friday'], '금');
+      expect(OperatingDays.toKorean['saturday'], '토');
+      expect(OperatingDays.toKorean['sunday'], '일');
     });
 
     test('orderedKeys should start with Monday and end with Sunday', () {
-      expect(OperatingDays.orderedKeys.first, 'MONDAY');
-      expect(OperatingDays.orderedKeys.last, 'SUNDAY');
+      expect(OperatingDays.orderedKeys.first, 'monday');
+      expect(OperatingDays.orderedKeys.last, 'sunday');
     });
 
     test('toKorean should return null for invalid key', () {
