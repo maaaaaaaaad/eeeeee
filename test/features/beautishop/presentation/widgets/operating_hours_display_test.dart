@@ -22,8 +22,8 @@ void main() {
           home: Scaffold(
             body: OperatingHoursDisplay(
               operatingTime: {
-                'MONDAY': '09:00-18:00',
-                'FRIDAY': '10:00-20:00',
+                'monday': '09:00-18:00',
+                'friday': '10:00-20:00',
               },
             ),
           ),
