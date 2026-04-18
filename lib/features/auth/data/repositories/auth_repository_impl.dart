@@ -60,9 +60,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> sendVerificationCode(String email) async {
+  Future<Either<Failure, void>> sendVerificationCode(String email, {String purpose = 'SIGNUP'}) async {
     try {
-      await remoteDataSource.sendVerificationCode(email);
+      await remoteDataSource.sendVerificationCode(email, purpose: purpose);
       return const Right(null);
     } on DioException catch (e) {
       return Left(ApiErrorHandler.fromDioException(e, fallback: '인증코드 발송에 실패했습니다'));
@@ -104,6 +104,26 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ApiErrorHandler.fromDioException(e, fallback: 'SMS 인증코드 확인에 실패했습니다'));
     } catch (_) {
       return const Left(ServerFailure('SMS 인증코드 확인에 실패했습니다'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({
+    required String email,
+    required String newPassword,
+    required String emailVerificationToken,
+  }) async {
+    try {
+      await remoteDataSource.resetPassword(
+        email: email,
+        newPassword: newPassword,
+        emailVerificationToken: emailVerificationToken,
+      );
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '비밀번호 재설정에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('비밀번호 재설정에 실패했습니다'));
     }
   }
 
