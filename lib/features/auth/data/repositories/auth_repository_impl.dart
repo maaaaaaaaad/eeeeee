@@ -84,6 +84,30 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> sendSmsVerificationCode(String phoneNumber) async {
+    try {
+      await remoteDataSource.sendSmsVerificationCode(phoneNumber);
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(ApiErrorHandler.fromDioException(e, fallback: 'SMS 인증코드 발송에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('SMS 인증코드 발송에 실패했습니다'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> verifySmsCode(String phoneNumber, String code) async {
+    try {
+      final token = await remoteDataSource.verifySmsCode(phoneNumber, code);
+      return Right(token);
+    } on DioException catch (e) {
+      return Left(ApiErrorHandler.fromDioException(e, fallback: 'SMS 인증코드 확인에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('SMS 인증코드 확인에 실패했습니다'));
+    }
+  }
+
+  @override
   Future<Either<Failure, AuthToken>> refreshToken(String refreshToken) async {
     try {
       final tokenModel = await remoteDataSource.refreshToken(refreshToken);
