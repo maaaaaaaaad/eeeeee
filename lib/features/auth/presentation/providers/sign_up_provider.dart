@@ -100,6 +100,49 @@ class SignUpNotifier extends Notifier<SignUpState> {
     );
   }
 
+  Future<void> sendPhoneVerificationCode() async {
+    if (state.phoneNumber.isEmpty) return;
+
+    state = state.copyWith(
+      phoneVerificationStatus: VerificationStatus.sending,
+      phoneVerificationError: null,
+    );
+
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.sendSmsVerificationCode(state.phoneNumber);
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        phoneVerificationStatus: VerificationStatus.initial,
+        phoneVerificationError: failure.message,
+      ),
+      (_) => state = state.copyWith(
+        phoneVerificationStatus: VerificationStatus.codeSent,
+      ),
+    );
+  }
+
+  Future<void> verifyPhoneCode(String code) async {
+    state = state.copyWith(
+      phoneVerificationStatus: VerificationStatus.verifying,
+      phoneVerificationError: null,
+    );
+
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.verifySmsCode(state.phoneNumber, code);
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        phoneVerificationStatus: VerificationStatus.codeSent,
+        phoneVerificationError: failure.message,
+      ),
+      (token) => state = state.copyWith(
+        phoneVerificationStatus: VerificationStatus.verified,
+        isPhoneVerified: true,
+      ),
+    );
+  }
+
   Future<void> submit() async {
     state = state.copyWith(status: SignUpStatus.loading);
 
@@ -141,6 +184,9 @@ class SignUpState extends Equatable {
   final String emailVerificationToken;
   final VerificationStatus verificationStatus;
   final String? verificationError;
+  final bool isPhoneVerified;
+  final VerificationStatus phoneVerificationStatus;
+  final String? phoneVerificationError;
 
   const SignUpState({
     this.currentStep = 0,
@@ -155,6 +201,9 @@ class SignUpState extends Equatable {
     this.emailVerificationToken = '',
     this.verificationStatus = VerificationStatus.initial,
     this.verificationError,
+    this.isPhoneVerified = false,
+    this.phoneVerificationStatus = VerificationStatus.initial,
+    this.phoneVerificationError,
   });
 
   SignUpState copyWith({
@@ -170,6 +219,9 @@ class SignUpState extends Equatable {
     String? emailVerificationToken,
     VerificationStatus? verificationStatus,
     String? verificationError,
+    bool? isPhoneVerified,
+    VerificationStatus? phoneVerificationStatus,
+    String? phoneVerificationError,
   }) {
     return SignUpState(
       currentStep: currentStep ?? this.currentStep,
@@ -184,6 +236,9 @@ class SignUpState extends Equatable {
       emailVerificationToken: emailVerificationToken ?? this.emailVerificationToken,
       verificationStatus: verificationStatus ?? this.verificationStatus,
       verificationError: verificationError ?? this.verificationError,
+      isPhoneVerified: isPhoneVerified ?? this.isPhoneVerified,
+      phoneVerificationStatus: phoneVerificationStatus ?? this.phoneVerificationStatus,
+      phoneVerificationError: phoneVerificationError ?? this.phoneVerificationError,
     );
   }
 
@@ -205,6 +260,9 @@ class SignUpState extends Equatable {
         emailVerificationToken,
         verificationStatus,
         verificationError,
+        isPhoneVerified,
+        phoneVerificationStatus,
+        phoneVerificationError,
       ];
 }
 
