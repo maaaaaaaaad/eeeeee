@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
@@ -60,6 +61,18 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
     widget.onUploadingChanged?.call(_uploadingCount > 0);
   }
 
+  Future<File> _fixExifOrientation(File file) async {
+    final targetPath = '${file.parent.path}/fixed_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.path,
+      targetPath,
+      quality: 95,
+      autoCorrectionAngle: true,
+      keepExif: false,
+    );
+    return result != null ? File(result.path) : file;
+  }
+
   Future<File?> _cropImage(File file) async {
     final cropped = await ImageCropper().cropImage(
       sourcePath: file.path,
@@ -69,6 +82,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
           toolbarColor: AppColors.pastelPink,
           toolbarWidgetColor: Colors.white,
           activeControlsWidgetColor: AppColors.pastelPink,
+          statusBarLight: true,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
         ),
@@ -76,6 +90,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
           title: '사진 편집',
           cancelButtonTitle: '취소',
           doneButtonTitle: '완료',
+          hidesNavigationBar: false,
         ),
       ],
     );
@@ -94,7 +109,8 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
     );
     if (picked == null) return;
 
-    final edited = await _cropImage(File(picked.path));
+    final fixed = await _fixExifOrientation(File(picked.path));
+    final edited = await _cropImage(fixed);
     if (edited == null) return;
 
     await _uploadFile(edited);
@@ -117,7 +133,8 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
     for (final xFile in filesToUpload) {
       if (_items.length >= ShopImagePicker.maxImages) break;
 
-      final edited = await _cropImage(File(xFile.path));
+      final fixed = await _fixExifOrientation(File(xFile.path));
+      final edited = await _cropImage(fixed);
       if (edited == null) continue;
 
       await _uploadFile(edited);
