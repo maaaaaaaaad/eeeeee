@@ -15,6 +15,8 @@ abstract class AuthRepository {
   });
   Future<Either<Failure, void>> sendVerificationCode(String email);
   Future<Either<Failure, String>> verifyCode(String email, String code);
+  Future<Either<Failure, void>> sendSmsVerificationCode(String phoneNumber);
+  Future<Either<Failure, String>> verifySmsCode(String phoneNumber, String code);
   Future<Either<Failure, AuthToken>> refreshToken(String refreshToken);
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, Owner>> getCurrentOwner();
