@@ -12,10 +12,11 @@ abstract class AuthRemoteDataSource {
     required String nickname,
     required String emailVerificationToken,
   });
-  Future<void> sendVerificationCode(String email);
+  Future<void> sendVerificationCode(String email, {String purpose = 'SIGNUP'});
   Future<String> verifyCode(String email, String code);
   Future<void> sendSmsVerificationCode(String phoneNumber);
   Future<String> verifySmsCode(String phoneNumber, String code);
+  Future<void> resetPassword({required String email, required String newPassword, required String emailVerificationToken});
   Future<AuthTokenModel> refreshToken(String refreshToken);
   Future<void> logout();
   Future<OwnerModel> getCurrentOwner();
@@ -64,10 +65,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> sendVerificationCode(String email) async {
+  Future<void> sendVerificationCode(String email, {String purpose = 'SIGNUP'}) async {
     await apiClient.post(
       '/api/verification/send',
-      data: {'target': email, 'type': 'EMAIL'},
+      data: {'target': email, 'type': 'EMAIL', 'purpose': purpose},
     );
   }
 
@@ -97,6 +98,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     return response.data!['verificationToken'] as String;
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String newPassword,
+    required String emailVerificationToken,
+  }) async {
+    await apiClient.post(
+      '/api/auth/reset-password',
+      data: {
+        'email': email,
+        'newPassword': newPassword,
+        'emailVerificationToken': emailVerificationToken,
+      },
+    );
   }
 
   @override
