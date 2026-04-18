@@ -14,6 +14,8 @@ abstract class AuthRemoteDataSource {
   });
   Future<void> sendVerificationCode(String email);
   Future<String> verifyCode(String email, String code);
+  Future<void> sendSmsVerificationCode(String phoneNumber);
+  Future<String> verifySmsCode(String phoneNumber, String code);
   Future<AuthTokenModel> refreshToken(String refreshToken);
   Future<void> logout();
   Future<OwnerModel> getCurrentOwner();
@@ -74,6 +76,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final response = await apiClient.post<Map<String, dynamic>>(
       '/api/verification/verify',
       data: {'target': email, 'code': code, 'type': 'EMAIL'},
+    );
+
+    return response.data!['verificationToken'] as String;
+  }
+
+  @override
+  Future<void> sendSmsVerificationCode(String phoneNumber) async {
+    await apiClient.post(
+      '/api/verification/send',
+      data: {'target': phoneNumber, 'type': 'SMS'},
+    );
+  }
+
+  @override
+  Future<String> verifySmsCode(String phoneNumber, String code) async {
+    final response = await apiClient.post<Map<String, dynamic>>(
+      '/api/verification/verify',
+      data: {'target': phoneNumber, 'code': code, 'type': 'SMS'},
     );
 
     return response.data!['verificationToken'] as String;
