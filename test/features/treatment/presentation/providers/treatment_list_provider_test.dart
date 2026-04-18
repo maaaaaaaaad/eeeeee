@@ -105,7 +105,7 @@ void main() {
 
       final state = container.read(treatmentListNotifierProvider('shop-1'));
       expect(state.status, TreatmentListStatus.loaded);
-      verify(() => mockListUseCase('shop-1')).called(2);
+      verify(() => mockListUseCase('shop-1')).called(3);
     });
   });
 }
