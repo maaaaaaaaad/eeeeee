@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/sign_up_provider.dart';
@@ -22,6 +24,9 @@ class _SignUpStep3State extends ConsumerState<SignUpStep3> {
   final _formKey = GlobalKey<FormState>();
   final _phoneNumberController = TextEditingController();
   final _nicknameController = TextEditingController();
+  final _smsCodeController = TextEditingController();
+  Timer? _resendTimer;
+  int _resendCooldown = 0;
 
   @override
   void initState() {
@@ -35,7 +40,45 @@ class _SignUpStep3State extends ConsumerState<SignUpStep3> {
   void dispose() {
     _phoneNumberController.dispose();
     _nicknameController.dispose();
+    _smsCodeController.dispose();
+    _resendTimer?.cancel();
     super.dispose();
+  }
+
+  void _startResendCooldown() {
+    _resendCooldown = 60;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _resendCooldown--;
+        if (_resendCooldown <= 0) timer.cancel();
+      });
+    });
+  }
+
+  void _onSendSmsCode() {
+    final phone = _phoneNumberController.text.trim();
+    if (phone.isEmpty || !PhoneNumberFormatter.isValid(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('올바른 휴대폰 번호를 입력해주세요')),
+      );
+      return;
+    }
+
+    ref.read(signUpNotifierProvider.notifier).updatePhoneNumber(phone);
+    ref.read(signUpNotifierProvider.notifier).sendPhoneVerificationCode();
+    _startResendCooldown();
+  }
+
+  void _onVerifySmsCode() {
+    final code = _smsCodeController.text.trim();
+    if (code.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('6자리 인증코드를 입력해주세요')),
+      );
+      return;
+    }
+    ref.read(signUpNotifierProvider.notifier).verifyPhoneCode(code);
   }
 
   void _onSubmit() {
@@ -49,6 +92,21 @@ class _SignUpStep3State extends ConsumerState<SignUpStep3> {
 
   @override
   Widget build(BuildContext context) {
+    final signUpState = ref.watch(signUpNotifierProvider);
+    final isPhoneVerified = signUpState.isPhoneVerified;
+    final phoneStatus = signUpState.phoneVerificationStatus;
+    final showCodeInput = phoneStatus == VerificationStatus.codeSent ||
+        phoneStatus == VerificationStatus.verifying;
+
+    ref.listen<SignUpState>(signUpNotifierProvider, (prev, next) {
+      if (next.phoneVerificationError != null &&
+          next.phoneVerificationError != prev?.phoneVerificationError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.phoneVerificationError!)),
+        );
+      }
+    });
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -73,57 +131,141 @@ class _SignUpStep3State extends ConsumerState<SignUpStep3> {
               ),
             ),
             const SizedBox(height: 32),
-            TextFormField(
-              controller: _phoneNumberController,
-              keyboardType: TextInputType.phone,
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: '휴대폰 번호',
-                hintText: '010-0000-0000 또는 01000000000',
-                prefixIcon: const Icon(Icons.phone_outlined),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                helperText: '하이픈(-) 포함 또는 숫자만 입력 가능',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '휴대폰 번호를 입력해주세요';
-                }
-                if (!PhoneNumberFormatter.isValid(value)) {
-                  return '올바른 휴대폰 번호 형식이 아닙니다';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: AppColors.textSecondary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '추후 SMS 인증이 추가될 예정입니다.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _phoneNumberController,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.next,
+                    readOnly: isPhoneVerified,
+                    decoration: InputDecoration(
+                      labelText: '휴대폰 번호',
+                      hintText: '01012345678',
+                      prefixIcon: Icon(
+                        isPhoneVerified ? Icons.check_circle : Icons.phone_outlined,
+                        color: isPhoneVerified ? Colors.green : null,
                       ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '휴대폰 번호를 입력해주세요';
+                      }
+                      if (!PhoneNumberFormatter.isValid(value)) {
+                        return '올바른 휴대폰 번호 형식이 아닙니다';
+                      }
+                      if (!isPhoneVerified) {
+                        return '휴대폰 인증을 완료해주세요';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                if (!isPhoneVerified) ...[
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: phoneStatus == VerificationStatus.sending ||
+                              _resendCooldown > 0
+                          ? null
+                          : _onSendSmsCode,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: phoneStatus == VerificationStatus.sending
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              _resendCooldown > 0
+                                  ? '${_resendCooldown}s'
+                                  : showCodeInput
+                                      ? '재전송'
+                                      : '인증',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            if (showCodeInput) ...[
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _smsCodeController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        labelText: '인증코드 6자리',
+                        counterText: '',
+                        prefixIcon: const Icon(Icons.pin_outlined),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: phoneStatus == VerificationStatus.verifying
+                          ? null
+                          : _onVerifySmsCode,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: phoneStatus == VerificationStatus.verifying
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('확인', style: TextStyle(fontSize: 14)),
                     ),
                   ),
                 ],
               ),
-            ),
+            ],
+            if (isPhoneVerified) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    '휴대폰 인증이 완료되었습니다',
+                    style: TextStyle(fontSize: 13, color: Colors.green),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 24),
             TextFormField(
               controller: _nicknameController,
@@ -154,7 +296,7 @@ class _SignUpStep3State extends ConsumerState<SignUpStep3> {
             ),
             const SizedBox(height: 32),
             FilledButton(
-              onPressed: widget.isLoading ? null : _onSubmit,
+              onPressed: (widget.isLoading || !isPhoneVerified) ? null : _onSubmit,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: AppColors.primary,
