@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_owner/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
@@ -73,7 +74,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   _buildPasswordField(),
                   const SizedBox(height: 32),
                   _buildLoginButton(authState),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
+                  _buildForgotPasswordLink(),
+                  const SizedBox(height: 16),
                   _buildSignUpLink(),
                 ],
               ),
@@ -193,6 +196,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               '로그인',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
+    );
+  }
+
+  Widget _buildForgotPasswordLink() {
+    return Center(
+      child: TextButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+        ),
+        child: Text(
+          '비밀번호를 잊으셨나요?',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+          ),
+        ),
+      ),
     );
   }
 
