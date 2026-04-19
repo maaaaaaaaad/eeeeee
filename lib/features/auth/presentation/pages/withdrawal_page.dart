@@ -34,6 +34,8 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
   @override
   void initState() {
     super.initState();
+    _emailCodeController.addListener(_rebuild);
+    _smsCodeController.addListener(_rebuild);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final owner = ref.read(homeNotifierProvider).owner;
       if (owner != null) {
@@ -43,6 +45,10 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
             .setPhoneNumber(owner.phoneNumber);
       }
     });
+  }
+
+  void _rebuild() {
+    if (mounted) setState(() {});
   }
 
   @override
