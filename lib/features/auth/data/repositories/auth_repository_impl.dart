@@ -173,4 +173,25 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Left(ServerFailure('사용자 정보를 불러올 수 없습니다'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> withdraw({
+    required String password,
+    required String reason,
+    required String verificationToken,
+  }) async {
+    try {
+      await remoteDataSource.withdraw(
+        password: password,
+        reason: reason,
+        verificationToken: verificationToken,
+      );
+      await tokenStorage.clearTokens();
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(ApiErrorHandler.fromDioException(e, fallback: '회원 탈퇴에 실패했습니다'));
+    } catch (_) {
+      return const Left(ServerFailure('회원 탈퇴에 실패했습니다'));
+    }
+  }
 }
