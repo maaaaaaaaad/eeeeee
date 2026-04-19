@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/core/usecase/usecase.dart';
 import 'package:mobile_owner/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/login_page.dart';
+import 'package:mobile_owner/features/auth/presentation/pages/withdrawal_page.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
+import 'package:mobile_owner/shared/theme/app_colors.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/account_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/app_info_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/notification_section.dart';
@@ -45,6 +47,24 @@ class SettingsPage extends ConsumerWidget {
           const SizedBox(height: 16),
           const AppInfoSection(appVersion: _appVersion),
           const SizedBox(height: 32),
+          Center(
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const WithdrawalPage()),
+                );
+              },
+              child: const Text(
+                '회원 탈퇴',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textHint,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );
