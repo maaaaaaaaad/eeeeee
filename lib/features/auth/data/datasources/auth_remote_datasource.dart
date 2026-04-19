@@ -20,6 +20,11 @@ abstract class AuthRemoteDataSource {
   Future<AuthTokenModel> refreshToken(String refreshToken);
   Future<void> logout();
   Future<OwnerModel> getCurrentOwner();
+  Future<void> withdraw({
+    required String password,
+    required String reason,
+    required String verificationToken,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -137,5 +142,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<OwnerModel> getCurrentOwner() async {
     final response = await apiClient.get<Map<String, dynamic>>('/api/owners/me');
     return OwnerModel.fromJson(response.data!);
+  }
+
+  @override
+  Future<void> withdraw({
+    required String password,
+    required String reason,
+    required String verificationToken,
+  }) async {
+    await apiClient.post(
+      '/api/owners/me/withdraw',
+      data: {
+        'password': password,
+        'reason': reason,
+        'verificationToken': verificationToken,
+      },
+    );
   }
 }
