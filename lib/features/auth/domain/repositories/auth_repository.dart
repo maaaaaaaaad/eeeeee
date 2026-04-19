@@ -21,4 +21,9 @@ abstract class AuthRepository {
   Future<Either<Failure, AuthToken>> refreshToken(String refreshToken);
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, Owner>> getCurrentOwner();
+  Future<Either<Failure, void>> withdraw({
+    required String password,
+    required String reason,
+    required String verificationToken,
+  });
 }
