@@ -51,6 +51,34 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _handleSendEmailCode() async {
+    final messenger = ScaffoldMessenger.of(context);
+    await ref.read(withdrawalNotifierProvider.notifier).sendEmailCode();
+    if (!mounted) return;
+    final s = ref.read(withdrawalNotifierProvider);
+    if (s.emailStatus == VerificationStatus.codeSent) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('이메일로 인증코드가 전송되었습니다')),
+      );
+    } else if (s.error != null) {
+      messenger.showSnackBar(SnackBar(content: Text(s.error!)));
+    }
+  }
+
+  Future<void> _handleSendSmsCode() async {
+    final messenger = ScaffoldMessenger.of(context);
+    await ref.read(withdrawalNotifierProvider.notifier).sendSmsCode();
+    if (!mounted) return;
+    final s = ref.read(withdrawalNotifierProvider);
+    if (s.smsStatus == VerificationStatus.codeSent) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('휴대폰으로 인증코드가 전송되었습니다')),
+      );
+    } else if (s.error != null) {
+      messenger.showSnackBar(SnackBar(content: Text(s.error!)));
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -326,7 +354,7 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
               onPressed: state.emailStatus == VerificationStatus.sending ||
                       state.isEmailVerified
                   ? null
-                  : () => ref.read(withdrawalNotifierProvider.notifier).sendEmailCode(),
+                  : _handleSendEmailCode,
               child: Text(
                 state.emailStatus == VerificationStatus.codeSent ||
                         state.isEmailVerified
@@ -392,7 +420,7 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
               onPressed: state.smsStatus == VerificationStatus.sending ||
                       state.isSmsVerified
                   ? null
-                  : () => ref.read(withdrawalNotifierProvider.notifier).sendSmsCode(),
+                  : _handleSendSmsCode,
               child: Text(
                 state.smsStatus == VerificationStatus.codeSent ||
                         state.isSmsVerified
