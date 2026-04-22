@@ -49,12 +49,15 @@ class _ReservationListPageState extends ConsumerState<ReservationListPage> {
   }
 
   Widget _buildFilterTabs(ReservationListState state) {
-    final filters = <(String, ReservationStatus?)>[
-      ('전체', null),
-      ('대기중', ReservationStatus.pending),
-      ('확정', ReservationStatus.confirmed),
-      ('완료', ReservationStatus.completed),
-      ('거절/취소', ReservationStatus.rejected),
+    final filters = <(String, List<ReservationStatus>)>[
+      ('전체', const []),
+      ('대기중', const [ReservationStatus.pending]),
+      ('확정', const [ReservationStatus.confirmed]),
+      ('완료', const [ReservationStatus.completed]),
+      (
+        '거절/취소',
+        const [ReservationStatus.rejected, ReservationStatus.cancelled]
+      ),
     ];
 
     return SingleChildScrollView(
@@ -62,7 +65,7 @@ class _ReservationListPageState extends ConsumerState<ReservationListPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: filters.map((filter) {
-          final isSelected = state.filterStatus == filter.$2;
+          final isSelected = _listEquals(state.filterStatuses, filter.$2);
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
@@ -70,8 +73,9 @@ class _ReservationListPageState extends ConsumerState<ReservationListPage> {
               selected: isSelected,
               onSelected: (_) {
                 ref
-                    .read(reservationListNotifierProvider(widget.shopId).notifier)
-                    .filterByStatus(isSelected ? null : filter.$2);
+                    .read(reservationListNotifierProvider(widget.shopId)
+                        .notifier)
+                    .filterByStatuses(isSelected ? const [] : filter.$2);
               },
               selectedColor: AppColors.lightPink,
               checkmarkColor: AppColors.accentPink,
@@ -80,6 +84,14 @@ class _ReservationListPageState extends ConsumerState<ReservationListPage> {
         }).toList(),
       ),
     );
+  }
+
+  bool _listEquals(List<ReservationStatus> a, List<ReservationStatus> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   Widget _buildBody(ReservationListState state) {
