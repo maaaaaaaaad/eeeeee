@@ -129,16 +129,16 @@ void main() {
       final notifier = container
           .read(reservationListNotifierProvider('shop-1').notifier);
       await notifier.loadReservations();
-      notifier.filterByStatus(ReservationStatus.pending);
+      notifier.filterByStatuses([ReservationStatus.pending]);
 
       final state =
           container.read(reservationListNotifierProvider('shop-1'));
-      expect(state.filterStatus, ReservationStatus.pending);
+      expect(state.filterStatuses, [ReservationStatus.pending]);
       expect(state.filteredReservations.length, 1);
       expect(state.filteredReservations[0].id, 'r-1');
     });
 
-    test('should clear filter when null is passed', () async {
+    test('should clear filter when empty list is passed', () async {
       when(() => mockUseCase('shop-1'))
           .thenAnswer((_) async => Right(reservations));
 
@@ -148,12 +148,12 @@ void main() {
       final notifier = container
           .read(reservationListNotifierProvider('shop-1').notifier);
       await notifier.loadReservations();
-      notifier.filterByStatus(ReservationStatus.pending);
-      notifier.filterByStatus(null);
+      notifier.filterByStatuses([ReservationStatus.pending]);
+      notifier.filterByStatuses([]);
 
       final state =
           container.read(reservationListNotifierProvider('shop-1'));
-      expect(state.filterStatus, isNull);
+      expect(state.filterStatuses, isEmpty);
       expect(state.filteredReservations.length, 3);
     });
 
