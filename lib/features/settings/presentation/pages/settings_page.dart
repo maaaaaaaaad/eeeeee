@@ -9,6 +9,7 @@ import 'package:mobile_owner/features/home/presentation/providers/home_provider.
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/account_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/app_info_section.dart';
+import 'package:mobile_owner/features/settings/presentation/widgets/legal_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/notification_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/profile_section.dart';
 
@@ -44,6 +45,8 @@ class SettingsPage extends ConsumerWidget {
           AccountSection(onLogout: () => _handleLogout(context, ref)),
           const SizedBox(height: 16),
           const NotificationSection(),
+          const SizedBox(height: 16),
+          const LegalSection(),
           const SizedBox(height: 16),
           const AppInfoSection(appVersion: _appVersion),
           const SizedBox(height: 32),
