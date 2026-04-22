@@ -31,28 +31,6 @@ class AppInfoSection extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                leading: const Icon(Icons.description_outlined, color: AppColors.textSecondary),
-                title: const Text('이용약관'),
-                trailing: const Icon(Icons.chevron_right, color: AppColors.textHint),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('준비 중입니다')),
-                  );
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.textSecondary),
-                title: const Text('개인정보처리방침'),
-                trailing: const Icon(Icons.chevron_right, color: AppColors.textHint),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('준비 중입니다')),
-                  );
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
                 leading: const Icon(Icons.info_outline, color: AppColors.textSecondary),
                 title: const Text('앱 버전'),
                 trailing: Text(
