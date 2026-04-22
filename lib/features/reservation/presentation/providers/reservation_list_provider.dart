@@ -34,10 +34,9 @@ class ReservationListNotifier
     );
   }
 
-  void filterByStatus(ReservationStatus? status) {
+  void filterByStatuses(List<ReservationStatus> statuses) {
     state = state.copyWith(
-      filterStatus: status,
-      clearFilter: status == null,
+      filterStatuses: statuses,
     );
   }
 
@@ -51,36 +50,38 @@ enum ReservationListStatus { initial, loading, loaded, error }
 class ReservationListState extends Equatable {
   final ReservationListStatus status;
   final List<Reservation> reservations;
-  final ReservationStatus? filterStatus;
+  final List<ReservationStatus> filterStatuses;
   final String? errorMessage;
 
   const ReservationListState({
     this.status = ReservationListStatus.initial,
     this.reservations = const [],
-    this.filterStatus,
+    this.filterStatuses = const [],
     this.errorMessage,
   });
 
   List<Reservation> get filteredReservations {
-    if (filterStatus == null) return reservations;
-    return reservations.where((r) => r.status == filterStatus).toList();
+    if (filterStatuses.isEmpty) return reservations;
+    return reservations
+        .where((r) => filterStatuses.contains(r.status))
+        .toList();
   }
 
   ReservationListState copyWith({
     ReservationListStatus? status,
     List<Reservation>? reservations,
-    ReservationStatus? filterStatus,
-    bool clearFilter = false,
+    List<ReservationStatus>? filterStatuses,
     String? errorMessage,
   }) {
     return ReservationListState(
       status: status ?? this.status,
       reservations: reservations ?? this.reservations,
-      filterStatus: clearFilter ? null : (filterStatus ?? this.filterStatus),
+      filterStatuses: filterStatuses ?? this.filterStatuses,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
-  List<Object?> get props => [status, reservations, filterStatus, errorMessage];
+  List<Object?> get props =>
+      [status, reservations, filterStatuses, errorMessage];
 }
