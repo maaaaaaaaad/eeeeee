@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_owner/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
 class AccountSection extends StatelessWidget {
@@ -35,8 +36,10 @@ class AccountSection extends StatelessWidget {
                 title: const Text('비밀번호 변경'),
                 trailing: const Icon(Icons.chevron_right, color: AppColors.textHint),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('준비 중입니다')),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordPage(),
+                    ),
                   );
                 },
               ),
