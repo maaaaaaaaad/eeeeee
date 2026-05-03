@@ -11,6 +11,7 @@ class BeautyShop extends Equatable {
   final Map<String, String> operatingTime;
   final String? description;
   final List<String> images;
+  final List<String> menuImages;
   final double averageRating;
   final int reviewCount;
   final List<CategorySummary> categories;
@@ -26,6 +27,7 @@ class BeautyShop extends Equatable {
     required this.operatingTime,
     this.description,
     required this.images,
+    this.menuImages = const [],
     required this.averageRating,
     required this.reviewCount,
     required this.categories,
