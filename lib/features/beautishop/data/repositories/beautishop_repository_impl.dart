@@ -30,6 +30,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
         operatingTime: params.operatingTime,
         shopDescription: params.shopDescription,
         shopImages: params.shopImages,
+        menuImages: params.menuImages,
       );
       final shop = await _remoteDataSource.createShop(request);
       return Right(shop);
@@ -59,6 +60,7 @@ class BeautishopRepositoryImpl implements BeautishopRepository {
         operatingTime: params.operatingTime,
         shopDescription: params.shopDescription,
         shopImages: params.shopImages,
+        menuImages: params.menuImages,
       );
       final shop = await _remoteDataSource.updateShop(params.shopId, request);
       return Right(shop);
