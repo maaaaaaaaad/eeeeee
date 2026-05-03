@@ -8,12 +8,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
 class ShopImagePicker extends StatefulWidget {
-  static const int maxImages = 5;
+  static const int defaultMaxImages = 5;
 
   final List<String> initialUrls;
   final ValueChanged<List<String>> onChanged;
   final Future<String> Function(File file) onUpload;
   final ValueChanged<bool>? onUploadingChanged;
+  final int maxImages;
 
   const ShopImagePicker({
     super.key,
@@ -21,6 +22,7 @@ class ShopImagePicker extends StatefulWidget {
     required this.onChanged,
     required this.onUpload,
     this.onUploadingChanged,
+    this.maxImages = defaultMaxImages,
   });
 
   @override
@@ -99,7 +101,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
   }
 
   Future<void> _pickAndUploadSingle(ImageSource source) async {
-    if (_items.length >= ShopImagePicker.maxImages) return;
+    if (_items.length >= widget.maxImages) return;
 
     final picked = await _picker.pickImage(
       source: source,
@@ -117,7 +119,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
   }
 
   Future<void> _pickMultipleFromGallery() async {
-    final remaining = ShopImagePicker.maxImages - _items.length;
+    final remaining = widget.maxImages - _items.length;
     if (remaining <= 0) return;
 
     final picked = await _picker.pickMultiImage(
@@ -131,7 +133,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
     final filesToUpload = picked.take(remaining).toList();
 
     for (final xFile in filesToUpload) {
-      if (_items.length >= ShopImagePicker.maxImages) break;
+      if (_items.length >= widget.maxImages) break;
 
       final fixed = await _fixExifOrientation(File(xFile.path));
       final edited = await _cropImage(fixed);
@@ -218,7 +220,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              if (_items.length < ShopImagePicker.maxImages)
+              if (_items.length < widget.maxImages)
                 _AddButton(onTap: _showSourcePicker),
               ..._items.asMap().entries.map((entry) {
                 final index = entry.key;
@@ -233,7 +235,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
         ),
         const SizedBox(height: 8),
         Text(
-          '${_items.where((i) => !i.isUploading).length}/${ShopImagePicker.maxImages}장',
+          '${_items.where((i) => !i.isUploading).length}/${widget.maxImages}장',
           style: TextStyle(fontSize: 12, color: AppColors.textHint),
         ),
       ],
