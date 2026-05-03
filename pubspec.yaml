@@ -1,13 +1,15 @@
 name: mobile_owner
 description: "JelloMark Owner - Beauty Shop Management Platform"
 publish_to: 'none'
-version: 1.0.0+72
+version: 1.0.0+73
 
 environment:
   sdk: ^3.10.7
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.6.1
