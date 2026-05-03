@@ -62,6 +62,10 @@ class ShopRegistrationWizardNotifier
     state = state.copyWith(shopImages: value);
   }
 
+  void updateMenuImages(List<String> value) {
+    state = state.copyWith(menuImages: value);
+  }
+
   void setImageUploading(bool value) {
     state = state.copyWith(isImageUploading: value);
   }
@@ -213,6 +217,7 @@ class ShopRegistrationWizardNotifier
           ? null
           : state.shopDescription.trim(),
       shopImages: state.shopImages,
+      menuImages: state.menuImages,
     );
 
     final createShopUseCase = ref.read(createBeautishopUseCaseProvider);
@@ -281,6 +286,7 @@ class ShopRegistrationWizardState extends Equatable {
 
   final String shopDescription;
   final List<String> shopImages;
+  final List<String> menuImages;
 
   final List<TreatmentDraft> treatmentDrafts;
   final bool isImageUploading;
@@ -299,6 +305,7 @@ class ShopRegistrationWizardState extends Equatable {
     this.operatingTime = const {},
     this.shopDescription = '',
     this.shopImages = const [],
+    this.menuImages = const [],
     this.treatmentDrafts = const [],
     this.isImageUploading = false,
   });
@@ -318,6 +325,7 @@ class ShopRegistrationWizardState extends Equatable {
     Map<String, String>? operatingTime,
     String? shopDescription,
     List<String>? shopImages,
+    List<String>? menuImages,
     List<TreatmentDraft>? treatmentDrafts,
     bool? isImageUploading,
   }) {
@@ -337,6 +345,7 @@ class ShopRegistrationWizardState extends Equatable {
       operatingTime: operatingTime ?? this.operatingTime,
       shopDescription: shopDescription ?? this.shopDescription,
       shopImages: shopImages ?? this.shopImages,
+      menuImages: menuImages ?? this.menuImages,
       treatmentDrafts: treatmentDrafts ?? this.treatmentDrafts,
       isImageUploading: isImageUploading ?? this.isImageUploading,
     );
@@ -357,6 +366,7 @@ class ShopRegistrationWizardState extends Equatable {
         operatingTime,
         shopDescription,
         shopImages,
+        menuImages,
         treatmentDrafts,
         isImageUploading,
       ];
