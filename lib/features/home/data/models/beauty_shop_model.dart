@@ -12,6 +12,7 @@ class BeautyShopModel extends BeautyShop {
     required super.operatingTime,
     super.description,
     required super.images,
+    super.menuImages = const [],
     required super.averageRating,
     required super.reviewCount,
     required super.categories,
@@ -31,6 +32,10 @@ class BeautyShopModel extends BeautyShop {
           {},
       description: json['description'] as String?,
       images: (json['images'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      menuImages: (json['menuImages'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
