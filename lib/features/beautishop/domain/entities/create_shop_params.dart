@@ -10,6 +10,7 @@ class CreateShopParams extends Equatable {
   final Map<String, String> operatingTime;
   final String? shopDescription;
   final List<String> shopImages;
+  final List<String> menuImages;
 
   const CreateShopParams({
     required this.name,
@@ -21,6 +22,7 @@ class CreateShopParams extends Equatable {
     required this.operatingTime,
     this.shopDescription,
     this.shopImages = const [],
+    this.menuImages = const [],
   });
 
   @override
@@ -34,5 +36,6 @@ class CreateShopParams extends Equatable {
         operatingTime,
         shopDescription,
         shopImages,
+        menuImages,
       ];
 }
