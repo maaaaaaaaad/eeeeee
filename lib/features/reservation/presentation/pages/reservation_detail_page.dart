@@ -229,53 +229,88 @@ class ReservationDetailPage extends ConsumerWidget {
     }
 
     if (reservation.status == ReservationStatus.confirmed) {
-      return Row(
+      final hasStarted = _hasReservationStarted(reservation);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: isLoading
-                  ? null
-                  : () => ref
-                      .read(reservationActionNotifierProvider.notifier)
-                      .complete(reservation.id),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pastelPink,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: (isLoading || !hasStarted)
+                      ? null
+                      : () => ref
+                          .read(reservationActionNotifierProvider.notifier)
+                          .complete(reservation.id),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.pastelPink,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('시술 완료'),
+                ),
               ),
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text('시술 완료'),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton(
-              onPressed: isLoading
-                  ? null
-                  : () => ref
-                      .read(reservationActionNotifierProvider.notifier)
-                      .noShow(reservation.id),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.error,
-                side: const BorderSide(color: AppColors.error),
-                padding: const EdgeInsets.symmetric(vertical: 14),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: (isLoading || !hasStarted)
+                      ? null
+                      : () => ref
+                          .read(reservationActionNotifierProvider.notifier)
+                          .noShow(reservation.id),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    side: const BorderSide(color: AppColors.error),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('노쇼'),
+                ),
               ),
-              child: const Text('노쇼'),
-            ),
+            ],
           ),
+          if (!hasStarted) ...[
+            const SizedBox(height: 8),
+            const Text(
+              '예약 시간이 지난 후 처리할 수 있습니다',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textHint,
+              ),
+            ),
+          ],
         ],
       );
     }
 
     return const SizedBox.shrink();
+  }
+
+  bool _hasReservationStarted(Reservation reservation) {
+    try {
+      final dateParts = reservation.reservationDate.split('-');
+      final timeParts = reservation.startTime.split(':');
+      if (dateParts.length != 3 || timeParts.length != 2) return false;
+      final scheduled = DateTime(
+        int.parse(dateParts[0]),
+        int.parse(dateParts[1]),
+        int.parse(dateParts[2]),
+        int.parse(timeParts[0]),
+        int.parse(timeParts[1]),
+      );
+      return DateTime.now().isAfter(scheduled);
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _onReject(BuildContext context, WidgetRef ref) async {
