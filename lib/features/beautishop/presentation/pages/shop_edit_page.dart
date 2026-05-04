@@ -78,12 +78,15 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: ListView(
-            padding: const EdgeInsets.all(20),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            20 + MediaQuery.of(context).padding.bottom,
+          ),
           children: [
             const Text(
               '영업 시간',
@@ -166,7 +169,6 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
             ),
             const SizedBox(height: 20),
           ],
-        ),
         ),
       ),
     );
