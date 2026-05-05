@@ -25,6 +25,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
   late final TextEditingController _descriptionController;
   late Map<String, String> _operatingTime;
   late List<String> _imageUrls;
+  late List<String> _menuImageUrls;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
         TextEditingController(text: widget.shop.description ?? '');
     _operatingTime = Map.from(widget.shop.operatingTime);
     _imageUrls = List.from(widget.shop.images);
+    _menuImageUrls = List.from(widget.shop.menuImages);
   }
 
   @override
@@ -134,6 +136,47 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
               onUpload: _uploadImage,
             ),
             const SizedBox(height: 24),
+            Row(
+              children: [
+                const Text(
+                  '시술 메뉴판 사진',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    '선택',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textHint,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '종이 메뉴판 사진을 업로드하면 손님이 한눈에 볼 수 있어요 (최대 3장)',
+              style: TextStyle(fontSize: 12, color: AppColors.textHint),
+            ),
+            const SizedBox(height: 12),
+            ShopImagePicker(
+              initialUrls: _menuImageUrls,
+              maxImages: 3,
+              onChanged: (urls) => _menuImageUrls = urls,
+              onUpload: _uploadImage,
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -188,6 +231,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
           ? null
           : _descriptionController.text.trim(),
       shopImages: _imageUrls,
+      menuImages: _menuImageUrls,
     );
 
     ref.read(shopEditNotifierProvider.notifier).update(params);
