@@ -81,12 +81,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            20,
-            20,
-            20 + MediaQuery.of(context).padding.bottom,
-          ),
+          padding: const EdgeInsets.all(20),
           children: [
             const Text(
               '영업 시간',
@@ -138,37 +133,48 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
               onChanged: (urls) => _imageUrls = urls,
               onUpload: _uploadImage,
             ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed:
-                    state.status == ShopEditStatus.loading ? null : _onSubmit,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.pastelPink,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: state.status == ShopEditStatus.loading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        '수정하기',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          12,
+          20,
+          12 + MediaQuery.of(context).padding.bottom,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.divider)),
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            onPressed:
+                state.status == ShopEditStatus.loading ? null : _onSubmit,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.pastelPink,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: state.status == ShopEditStatus.loading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text(
+                    '수정하기',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
         ),
       ),
     );
