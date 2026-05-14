@@ -1,7 +1,7 @@
 name: mobile_owner
 description: "JelloMark Owner - Beauty Shop Management Platform"
 publish_to: 'none'
-version: 1.0.0+78
+version: 1.0.0+79
 
 environment:
   sdk: ^3.10.7
@@ -34,6 +34,13 @@ dev_dependencies:
   mockito: ^5.6.1
   mocktail: ^1.0.4
   build_runner: ^2.10.4
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app-icon-jellomark-owner.png"
+  remove_alpha_ios: true
 
 flutter:
   uses-material-design: true
