@@ -26,12 +26,17 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
   late Map<String, String> _operatingTime;
   late List<String> _imageUrls;
   late List<String> _menuImageUrls;
+  bool _isShopImagesUploading = false;
+  bool _isMenuImagesUploading = false;
+
+  bool get _isUploading => _isShopImagesUploading || _isMenuImagesUploading;
 
   @override
   void initState() {
     super.initState();
-    _descriptionController =
-        TextEditingController(text: widget.shop.description ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.shop.description ?? '',
+    );
     _operatingTime = Map.from(widget.shop.operatingTime);
     _imageUrls = List.from(widget.shop.images);
     _menuImageUrls = List.from(widget.shop.menuImages);
@@ -62,9 +67,9 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
 
     ref.listen<ShopEditState>(shopEditNotifierProvider, (prev, next) {
       if (next.status == ShopEditStatus.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('샵이 수정되었습니다')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('샵이 수정되었습니다')));
         Navigator.pop(context, true);
       } else if (next.status == ShopEditStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -134,6 +139,8 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
               initialUrls: _imageUrls,
               onChanged: (urls) => _imageUrls = urls,
               onUpload: _uploadImage,
+              onUploadingChanged: (uploading) =>
+                  setState(() => _isShopImagesUploading = uploading),
             ),
             const SizedBox(height: 24),
             Row(
@@ -148,18 +155,17 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
                 ),
                 const SizedBox(width: 6),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.divider,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
                     '선택',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textHint,
-                    ),
+                    style: TextStyle(fontSize: 11, color: AppColors.textHint),
                   ),
                 ),
               ],
@@ -175,6 +181,8 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
               maxImages: 3,
               onChanged: (urls) => _menuImageUrls = urls,
               onUpload: _uploadImage,
+              onUploadingChanged: (uploading) =>
+                  setState(() => _isMenuImagesUploading = uploading),
             ),
             const SizedBox(height: 24),
           ],
@@ -194,8 +202,9 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
         child: SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed:
-                state.status == ShopEditStatus.loading ? null : _onSubmit,
+            onPressed: state.status == ShopEditStatus.loading || _isUploading
+                ? null
+                : _onSubmit,
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.pastelPink,
               padding: const EdgeInsets.symmetric(vertical: 16),
