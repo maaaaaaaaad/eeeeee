@@ -37,17 +37,19 @@ class _ImageItem {
   _ImageItem({this.url, this.localFile, this.isUploading = false});
 }
 
-class _ShopImagePickerState extends State<ShopImagePicker> {
+class _ShopImagePickerState extends State<ShopImagePicker>
+    with AutomaticKeepAliveClientMixin {
   final _picker = ImagePicker();
   late List<_ImageItem> _items;
   int _uploadingCount = 0;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-    _items = widget.initialUrls
-        .map((url) => _ImageItem(url: url))
-        .toList();
+    _items = widget.initialUrls.map((url) => _ImageItem(url: url)).toList();
   }
 
   void _notifyChanged() {
@@ -64,7 +66,8 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
   }
 
   Future<File> _fixExifOrientation(File file) async {
-    final targetPath = '${file.parent.path}/fixed_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final targetPath =
+        '${file.parent.path}/fixed_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final result = await FlutterImageCompress.compressAndGetFile(
       file.path,
       targetPath,
@@ -165,9 +168,9 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
         _items.remove(item);
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('이미지 업로드에 실패했습니다: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('이미지 업로드에 실패했습니다: $e')));
       }
     } finally {
       _updateUploadingState(-1);
@@ -212,6 +215,7 @@ class _ShopImagePickerState extends State<ShopImagePicker> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -304,13 +308,13 @@ class _ImageTile extends StatelessWidget {
                     ),
                   )
                 : item.localFile != null
-                    ? Image.file(
-                        item.localFile!,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(color: AppColors.divider),
+                ? Image.file(
+                    item.localFile!,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  )
+                : Container(color: AppColors.divider),
           ),
           if (item.isUploading)
             Container(
