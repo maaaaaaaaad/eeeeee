@@ -25,6 +25,9 @@ class ShopImagePicker extends StatefulWidget {
     this.maxImages = defaultMaxImages,
   });
 
+  static int? galleryLimitFor(int remaining) =>
+      remaining >= 2 ? remaining : null;
+
   @override
   State<ShopImagePicker> createState() => _ShopImagePickerState();
 }
@@ -141,11 +144,24 @@ class _ShopImagePickerState extends State<ShopImagePicker>
     if (remaining <= 0) return;
 
     try {
+      final limit = ShopImagePicker.galleryLimitFor(remaining);
+      if (limit == null) {
+        final picked = await _picker.pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 1920,
+          maxHeight: 1920,
+          imageQuality: 85,
+        );
+        if (picked == null) return;
+        await _processFile(File(picked.path));
+        return;
+      }
+
       final picked = await _picker.pickMultiImage(
         maxWidth: 1920,
         maxHeight: 1920,
         imageQuality: 85,
-        limit: remaining,
+        limit: limit,
       );
       if (picked.isEmpty) return;
 
