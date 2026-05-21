@@ -50,6 +50,22 @@ class _ShopImagePickerState extends State<ShopImagePicker>
   void initState() {
     super.initState();
     _items = widget.initialUrls.map((url) => _ImageItem(url: url)).toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recoverLostData());
+  }
+
+  Future<void> _recoverLostData() async {
+    try {
+      final response = await _picker.retrieveLostData();
+      if (response.isEmpty) return;
+      final files = response.files;
+      if (files == null || files.isEmpty) return;
+      for (final xFile in files) {
+        if (_items.length >= widget.maxImages) break;
+        await _processFile(File(xFile.path));
+      }
+    } catch (_) {
+      // 안드로이드에서 액티비티가 회수된 뒤의 복구는 best-effort라 실패해도 무시한다.
+    }
   }
 
   void _notifyChanged() {
@@ -106,44 +122,54 @@ class _ShopImagePickerState extends State<ShopImagePicker>
   Future<void> _pickAndUploadSingle(ImageSource source) async {
     if (_items.length >= widget.maxImages) return;
 
-    final picked = await _picker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 85,
-    );
-    if (picked == null) return;
-
-    final fixed = await _fixExifOrientation(File(picked.path));
-    final edited = await _cropImage(fixed);
-    if (edited == null) return;
-
-    await _uploadFile(edited);
+    try {
+      final picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      await _processFile(File(picked.path));
+    } catch (e) {
+      _showPickError(e);
+    }
   }
 
   Future<void> _pickMultipleFromGallery() async {
     final remaining = widget.maxImages - _items.length;
     if (remaining <= 0) return;
 
-    final picked = await _picker.pickMultiImage(
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 85,
-      limit: remaining,
-    );
-    if (picked.isEmpty) return;
+    try {
+      final picked = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+        limit: remaining,
+      );
+      if (picked.isEmpty) return;
 
-    final filesToUpload = picked.take(remaining).toList();
-
-    for (final xFile in filesToUpload) {
-      if (_items.length >= widget.maxImages) break;
-
-      final fixed = await _fixExifOrientation(File(xFile.path));
-      final edited = await _cropImage(fixed);
-      if (edited == null) continue;
-
-      await _uploadFile(edited);
+      for (final xFile in picked.take(remaining)) {
+        if (_items.length >= widget.maxImages) break;
+        await _processFile(File(xFile.path));
+      }
+    } catch (e) {
+      _showPickError(e);
     }
+  }
+
+  Future<void> _processFile(File raw) async {
+    final fixed = await _fixExifOrientation(raw);
+    final edited = await _cropImage(fixed);
+    if (edited == null) return;
+    await _uploadFile(edited);
+  }
+
+  void _showPickError(Object error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('사진을 불러오지 못했습니다: $error')));
   }
 
   Future<void> _uploadFile(File file) async {
