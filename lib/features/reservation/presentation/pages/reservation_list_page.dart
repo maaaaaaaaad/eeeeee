@@ -6,6 +6,7 @@ import 'package:mobile_owner/features/reservation/presentation/pages/reservation
 import 'package:mobile_owner/features/reservation/presentation/providers/reservation_list_provider.dart';
 import 'package:mobile_owner/features/reservation/presentation/widgets/reservation_card.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ReservationListPage extends ConsumerStatefulWidget {
   final String shopId;
@@ -32,7 +33,7 @@ class _ReservationListPageState extends ConsumerState<ReservationListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(reservationListNotifierProvider(widget.shopId));
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '예약 관리',
