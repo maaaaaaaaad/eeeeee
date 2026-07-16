@@ -6,6 +6,7 @@ import 'package:mobile_owner/features/home/presentation/providers/home_provider.
 import 'package:mobile_owner/features/home/presentation/widgets/empty_shop_guide.dart';
 import 'package:mobile_owner/features/home/presentation/widgets/shop_summary_card.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class MyShopTab extends ConsumerWidget {
   const MyShopTab({super.key});
@@ -14,7 +15,7 @@ class MyShopTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeNotifierProvider);
 
-    return Scaffold(
+    return AppScaffold(
       body: RefreshIndicator(
         color: AppColors.pastelPink,
         onRefresh: () => ref.read(homeNotifierProvider.notifier).refresh(),
