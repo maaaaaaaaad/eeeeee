@@ -8,6 +8,7 @@ import 'package:mobile_owner/features/beautishop/presentation/providers/shop_det
 import 'package:mobile_owner/features/beautishop/presentation/widgets/category_chip_list.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_hours_display.dart';
+import 'package:mobile_owner/features/designer/presentation/providers/designer_list_provider.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 import 'package:mobile_owner/features/reservation/presentation/pages/reservation_list_page.dart';
 import 'package:mobile_owner/features/review/presentation/pages/review_list_page.dart';
@@ -187,6 +188,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         const SizedBox(height: 20),
         _buildTreatmentSection(shop),
         const SizedBox(height: 20),
+        _buildDesignerSection(shop),
+        const SizedBox(height: 20),
         _buildReservationSection(shop),
         const SizedBox(height: 32),
         Row(
@@ -256,6 +259,79 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildDesignerSection(BeautyShop shop) {
+    final designerState =
+        ref.watch(designerListNotifierProvider(widget.shopId));
+    final designers = designerState.designers;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle('디자이너'),
+            TextButton(
+              onPressed: () => _navigateToEdit(shop),
+              child: const Text('관리하기'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (designers.isEmpty)
+          const Text(
+            '등록된 디자이너가 없습니다',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          )
+        else
+          SizedBox(
+            height: 96,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: designers.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final d = designers[index];
+                return SizedBox(
+                  width: 76,
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 32,
+                        backgroundColor: AppColors.backgroundMedium,
+                        backgroundImage: d.photoUrls.isNotEmpty
+                            ? CachedNetworkImageProvider(d.photoUrls.first)
+                            : null,
+                        child: d.photoUrls.isEmpty
+                            ? const Icon(
+                                Icons.person,
+                                color: AppColors.textHint,
+                                size: 28,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        d.nickname?.isNotEmpty == true ? d.nickname! : d.name,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
