@@ -14,6 +14,18 @@ const _kAllowedScaffold = {
   'lib/shared/widgets/app_scaffold.dart',
 };
 
+const _kAllowedViewInsetsBottom = {
+  'lib/shared/widgets/app_bottom_sheet.dart',
+  'lib/shared/widgets/app_bottom_inset.dart',
+  'lib/shared/widgets/app_bottom_action_bar.dart',
+};
+
+const _kAllowedRawAlertDialog = {
+  'lib/shared/widgets/app_bottom_sheet.dart',
+  'lib/features/beautishop/presentation/widgets/delete_confirmation_dialog.dart',
+  'lib/features/treatment/presentation/widgets/delete_treatment_dialog.dart',
+};
+
 void main() {
   group('Safe overlay architecture', () {
     test('lib/ must not call showModalBottomSheet directly', () {
@@ -60,6 +72,42 @@ void main() {
             'AppScaffold auto-handles SafeArea(top:auto,bottom:false) around body and provides '
             '`bottomAction` (AppBottomActionBar), `bottomNavigationBar`, and `backgroundGradient` slots '
             'so no screen leaks under system UI (status bar, gesture bar, home indicator).\n'
+            'Violations:\n${violations.join('\n')}',
+      );
+    });
+
+    test('lib/ must not reference MediaQuery viewInsets.bottom directly', () {
+      final violations = _findViolations(
+        pattern: RegExp(r'viewInsets(Of\([^)]*\))?\s*\.\s*bottom'),
+        allowed: _kAllowedViewInsetsBottom,
+      );
+      expect(
+        violations,
+        isEmpty,
+        reason:
+            'Do not read `viewInsets.bottom` (keyboard height) manually.\n'
+            'showAppBottomSheet, AppBottomActionBar, and Scaffold(resizeToAvoidBottomInset:true) '
+            'already pad for the keyboard. Adding another Padding(bottom: viewInsets.bottom) inside '
+            'a sheet double-pads and pushes the content above the keyboard by 2× its height.\n'
+            'If you truly need custom keyboard handling for a full-screen overlay, add the file to '
+            '_kAllowedViewInsetsBottom in test/architecture/safe_overlay_test.dart with a comment.\n'
+            'Violations:\n${violations.join('\n')}',
+      );
+    });
+
+    test('lib/ must not instantiate raw AlertDialog directly', () {
+      final violations = _findViolations(
+        pattern: RegExp(r'(?<!\w)AlertDialog\s*\('),
+        allowed: _kAllowedRawAlertDialog,
+      );
+      expect(
+        violations,
+        isEmpty,
+        reason:
+            'Use showAppConfirmDialog (lib/shared/widgets/app_bottom_sheet.dart) for confirmation dialogs.\n'
+            'It applies the correct insetPadding.bottom (24 + viewPadding.bottom) so the dialog is not '
+            'clipped by the Android system nav bar. For non-confirmation dialogs, use showAppDialog '
+            'with a Dialog widget and provide your own insetPadding that accounts for viewPadding.bottom.\n'
             'Violations:\n${violations.join('\n')}',
       );
     });
