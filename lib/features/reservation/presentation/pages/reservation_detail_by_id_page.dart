@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/reservation/presentation/pages/reservation_detail_page.dart';
 import 'package:mobile_owner/features/reservation/presentation/providers/reservation_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ReservationDetailByIdPage extends ConsumerStatefulWidget {
   final String reservationId;
@@ -48,7 +49,7 @@ class _ReservationDetailByIdPageState
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return const AppScaffold(
       body: Center(
         child: CircularProgressIndicator(color: AppColors.pastelPink),
       ),
