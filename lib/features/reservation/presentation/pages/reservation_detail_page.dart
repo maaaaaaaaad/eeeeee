@@ -7,6 +7,8 @@ import 'package:mobile_owner/features/reservation/presentation/providers/reserva
 import 'package:mobile_owner/features/reservation/presentation/widgets/reject_reservation_dialog.dart';
 import 'package:mobile_owner/features/reservation/presentation/widgets/reservation_status_badge.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ReservationDetailPage extends ConsumerWidget {
   final Reservation reservation;
@@ -32,7 +34,7 @@ class ReservationDetailPage extends ConsumerWidget {
 
     final actionState = ref.watch(reservationActionNotifierProvider);
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '예약 상세',
@@ -58,6 +60,7 @@ class ReservationDetailPage extends ConsumerWidget {
           ],
           const SizedBox(height: 32),
           _buildActionButtons(context, ref, actionState),
+          const AppBottomInset(additional: 16),
         ],
       ),
     );
