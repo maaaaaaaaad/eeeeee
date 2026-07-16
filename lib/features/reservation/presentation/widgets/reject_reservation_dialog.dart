@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
 
 class RejectReservationDialog extends StatefulWidget {
   const RejectReservationDialog({super.key});
 
   static Future<String?> show(BuildContext context) {
-    return showModalBottomSheet<String>(
+    return showAppBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       builder: (_) => const RejectReservationDialog(),
