@@ -4,11 +4,14 @@ import 'package:mobile_owner/features/beautishop/presentation/providers/shop_reg
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/basic_info_step.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/confirmation_step.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/description_step.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/designers_step.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/location_step.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/operating_time_step.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/step_indicator.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/treatment_drafts_step.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_action_bar.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ShopRegistrationWizardPage extends ConsumerStatefulWidget {
   const ShopRegistrationWizardPage({super.key});
@@ -69,7 +72,7 @@ class _ShopRegistrationWizardPageState
       },
     );
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '샵 등록',
@@ -94,15 +97,16 @@ class _ShopRegistrationWizardPageState
                   LocationStep(),
                   OperatingTimeStep(),
                   TreatmentDraftsStep(),
+                  DesignersStep(),
                   DescriptionStep(),
                   ConfirmationStep(),
                 ],
               ),
             ),
-            _buildBottomBar(state),
           ],
         ),
       ),
+      bottomAction: _buildBottomBar(state),
     );
   }
 
@@ -113,66 +117,51 @@ class _ShopRegistrationWizardPageState
     final isLoading = state.submitStatus == SubmitStatus.loading;
     final isUploading = state.isImageUploading;
 
-    return Container(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 12,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
+    final nextButton = FilledButton(
+      onPressed:
+          (isLoading || isUploading) ? null : (isLastStep ? _onSubmit : _onNext),
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.pastelPink,
+        padding: const EdgeInsets.symmetric(vertical: 14),
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.divider)),
-      ),
-      child: Row(
-        children: [
-          if (!isFirstStep)
-            Expanded(
-              child: OutlinedButton(
-                onPressed: isLoading ? null : _onPrevious,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: AppColors.divider),
-                ),
-                child: const Text(
-                  '이전',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+      child: isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Text(
+              isLastStep ? '등록하기' : '다음',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
-          if (!isFirstStep) const SizedBox(width: 12),
-          Expanded(
-            flex: isFirstStep ? 1 : 1,
-            child: FilledButton(
-              onPressed: (isLoading || isUploading) ? null : (isLastStep ? _onSubmit : _onNext),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.pastelPink,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      isLastStep ? '등록하기' : '다음',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
+    );
+
+    if (isFirstStep) {
+      return AppBottomActionBar(children: [nextButton]);
+    }
+
+    return AppBottomActionBar(
+      children: [
+        OutlinedButton(
+          onPressed: isLoading ? null : _onPrevious,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            side: const BorderSide(color: AppColors.divider),
           ),
-        ],
-      ),
+          child: const Text(
+            '이전',
+            style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+          ),
+        ),
+        nextButton,
+      ],
     );
   }
 
