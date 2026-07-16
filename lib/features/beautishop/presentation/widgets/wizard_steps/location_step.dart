@@ -5,6 +5,7 @@ import 'package:mobile_owner/features/beautishop/presentation/providers/shop_reg
 import 'package:mobile_owner/features/beautishop/presentation/widgets/address_search_bottom_sheet.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/map_preview.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
 
 class LocationStep extends ConsumerStatefulWidget {
   const LocationStep({super.key});
@@ -99,10 +100,9 @@ class _LocationStepState extends ConsumerState<LocationStep> {
   }
 
   void _openAddressSearch() {
-    showModalBottomSheet(
+    showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
