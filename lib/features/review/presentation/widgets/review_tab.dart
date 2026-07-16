@@ -5,6 +5,7 @@ import 'package:mobile_owner/features/review/presentation/pages/review_list_page
 import 'package:mobile_owner/features/review/presentation/providers/review_tab_provider.dart';
 import 'package:mobile_owner/features/review/presentation/widgets/review_room_card.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ReviewTab extends ConsumerWidget {
   const ReviewTab({super.key});
@@ -15,7 +16,7 @@ class ReviewTab extends ConsumerWidget {
     final reviewTabState = ref.watch(reviewTabNotifierProvider);
     final shops = homeState.shops;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '리뷰',
