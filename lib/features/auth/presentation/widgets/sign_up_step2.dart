@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/sign_up_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 import 'package:mobile_owner/shared/utils/input_formatters.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
 
 class SignUpStep2 extends ConsumerStatefulWidget {
   final VoidCallback onNext;
@@ -128,6 +129,7 @@ class _SignUpStep2State extends ConsumerState<SignUpStep2> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
+            const AppBottomInset(additional: 16),
           ],
         ),
       ),
