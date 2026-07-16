@@ -17,7 +17,9 @@ Future<T?> showAppBottomSheet<T>({
   bool isDismissible = true,
   bool enableDrag = true,
   ShapeBorder? shape,
+  double maxHeightFraction = 0.85,
 }) {
+  final screenHeight = MediaQuery.of(context).size.height;
   return showModalBottomSheet<T>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -25,6 +27,9 @@ Future<T?> showAppBottomSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     shape: shape,
+    constraints: BoxConstraints(
+      maxHeight: screenHeight * maxHeightFraction,
+    ),
     builder: (innerContext) => DecoratedBox(
       decoration: BoxDecoration(
         color:
