@@ -5,6 +5,7 @@ import 'package:mobile_owner/features/treatment/presentation/pages/treatment_for
 import 'package:mobile_owner/features/treatment/presentation/providers/treatment_list_provider.dart';
 import 'package:mobile_owner/features/treatment/presentation/widgets/treatment_card.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class TreatmentListPage extends ConsumerStatefulWidget {
   final String shopId;
@@ -30,7 +31,7 @@ class _TreatmentListPageState extends ConsumerState<TreatmentListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(treatmentListNotifierProvider(widget.shopId));
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '시술 관리',
