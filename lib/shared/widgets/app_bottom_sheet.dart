@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 
-/// 시스템 UI(안드로이드 네비/제스처 바)와 키보드를 자동 회피하는 BottomSheet wrapper.
+/// 시스템 UI(상태 바, 노치, 제스처 바, 홈 인디케이터)와 키보드를 자동 회피하는
+/// BottomSheet wrapper.
 ///
 /// `showModalBottomSheet`를 직접 호출하지 말고 항상 이 함수를 사용한다.
 /// Architecture Test가 `lib/` 안에서 raw `showModalBottomSheet(` 호출을 거부한다.
 ///
-/// 자동 처리:
-/// - `SafeArea(top: false)` — 하단 시스템 인셋 (제스처 바, 네비 바, 노치)
-/// - `viewInsets.bottom` — 키보드 높이
+/// 동작:
+/// 1. `useSafeArea: true` — Flutter가 상단(status bar/노치) 및 좌우 시스템 UI를
+///    자동 회피한다. 시트가 상태바 위로 확장되지 않는다.
+/// 2. `Padding(bottom: viewInsets.bottom)` — 소프트 키보드 높이만큼 시트 콘텐츠를
+///    위로 밀어올린다. Flutter는 modal bottom sheet에 대해 키보드 회피를 자동으로
+///    처리하지 않으므로 wrapper가 반드시 수동 처리해야 한다.
+/// 3. `SafeArea(top: false)` — 홈 인디케이터/제스처 바(bottom safe area)를 회피한다.
+///    `useSafeArea:true`는 `SafeArea(bottom:false)`로 감싸므로 하단은 별도 처리.
+///
+/// 이 wrapper는 시트 콘텐츠의 자연스러운 높이를 존중한다 — 별도 maxHeight를
+/// 강제하지 않는다. 콘텐츠가 화면보다 크면 SingleChildScrollView 안에서 스크롤한다.
+///
+/// DecoratedBox는 Padding 안쪽에 두어, 키보드 애니메이션 도중 padding 영역(=키보드
+/// 뒤로 들어가는 영역)이 배경색으로 채워져 콘텐츠 위를 덮는 것처럼 보이지 않게 한다.
 Future<T?> showAppBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -17,9 +29,7 @@ Future<T?> showAppBottomSheet<T>({
   bool isDismissible = true,
   bool enableDrag = true,
   ShapeBorder? shape,
-  double maxHeightFraction = 0.85,
 }) {
-  final screenHeight = MediaQuery.of(context).size.height;
   return showModalBottomSheet<T>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -27,21 +37,20 @@ Future<T?> showAppBottomSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     shape: shape,
-    constraints: BoxConstraints(
-      maxHeight: screenHeight * maxHeightFraction,
-    ),
-    builder: (innerContext) => DecoratedBox(
-      decoration: BoxDecoration(
-        color:
-            backgroundColor ?? Theme.of(innerContext).scaffoldBackgroundColor,
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(innerContext).viewInsets.bottom,
+    useSafeArea: true,
+    builder: (innerContext) {
+      final keyboardInset = MediaQuery.viewInsetsOf(innerContext).bottom;
+      return Padding(
+        padding: EdgeInsets.only(bottom: keyboardInset),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: backgroundColor ??
+                Theme.of(innerContext).scaffoldBackgroundColor,
+          ),
+          child: SafeArea(top: false, child: builder(innerContext)),
         ),
-        child: SafeArea(top: false, child: builder(innerContext)),
-      ),
-    ),
+      );
+    },
   );
 }
 
