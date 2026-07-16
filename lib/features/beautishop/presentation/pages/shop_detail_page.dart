@@ -14,6 +14,8 @@ import 'package:mobile_owner/features/review/presentation/pages/review_list_page
 import 'package:mobile_owner/features/treatment/presentation/pages/treatment_list_page.dart';
 import 'package:mobile_owner/features/treatment/presentation/providers/treatment_list_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ShopDetailPage extends ConsumerStatefulWidget {
   final String shopId;
@@ -52,7 +54,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           state.shop?.name ?? '샵 상세',
@@ -223,7 +225,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
             child: const Text('삭제'),
           ),
         ),
-        const SizedBox(height: 20),
+        const AppBottomInset(additional: 20),
       ],
     );
   }
