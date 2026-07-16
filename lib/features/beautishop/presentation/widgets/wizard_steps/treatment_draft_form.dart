@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/treatment_draft.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 import 'package:mobile_owner/shared/utils/validators.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
 
 class TreatmentDraftForm extends StatefulWidget {
   final TreatmentDraft? initial;
@@ -19,7 +20,7 @@ class TreatmentDraftForm extends StatefulWidget {
     TreatmentDraft? initial,
     required void Function(TreatmentDraft) onSave,
   }) {
-    return showModalBottomSheet(
+    return showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
