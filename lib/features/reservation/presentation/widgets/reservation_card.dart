@@ -62,6 +62,17 @@ class ReservationCard extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
+              if (reservation.designerName != null &&
+                  reservation.designerName!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '디자이너 ${reservation.designerName!}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
               const SizedBox(height: 4),
               Text(
                 '${reservation.reservationDate} ${reservation.startTime} - ${reservation.endTime}',
