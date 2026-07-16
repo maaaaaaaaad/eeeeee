@@ -2,10 +2,13 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/core/error/failure.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/create_shop_params.dart';
+import 'package:mobile_owner/features/beautishop/domain/entities/designer_draft.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/geocode_result.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/treatment_draft.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/beautishop_provider.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
+import 'package:mobile_owner/features/designer/domain/entities/create_designer_params.dart';
+import 'package:mobile_owner/features/designer/presentation/providers/designer_provider.dart';
 import 'package:mobile_owner/features/treatment/domain/entities/create_treatment_params.dart';
 import 'package:mobile_owner/features/treatment/presentation/providers/treatment_provider.dart';
 import 'package:mobile_owner/shared/utils/validators.dart';
@@ -17,7 +20,7 @@ final shopRegistrationWizardProvider = AutoDisposeNotifierProvider<
 
 class ShopRegistrationWizardNotifier
     extends AutoDisposeNotifier<ShopRegistrationWizardState> {
-  static const int totalSteps = 6;
+  static const int totalSteps = 7;
 
   @override
   ShopRegistrationWizardState build() {
@@ -88,6 +91,24 @@ class ShopRegistrationWizardNotifier
     state = state.copyWith(treatmentDrafts: drafts);
   }
 
+  void addDesignerDraft(DesignerDraft draft) {
+    state = state.copyWith(
+      designerDrafts: [...state.designerDrafts, draft],
+    );
+  }
+
+  void removeDesignerDraft(int index) {
+    final drafts = [...state.designerDrafts];
+    drafts.removeAt(index);
+    state = state.copyWith(designerDrafts: drafts);
+  }
+
+  void updateDesignerDraft(int index, DesignerDraft draft) {
+    final drafts = [...state.designerDrafts];
+    drafts[index] = draft;
+    state = state.copyWith(designerDrafts: drafts);
+  }
+
   Future<void> checkRegNumAvailability() async {
     if (state.shopRegNum.trim().isEmpty) return;
 
@@ -148,6 +169,8 @@ class ShopRegistrationWizardNotifier
       case 3:
         return _validateTreatments();
       case 4:
+        return null;
+      case 5:
         return _validateDescription();
       default:
         return null;
@@ -254,6 +277,24 @@ class ShopRegistrationWizardNotifier
           );
         }
 
+        final createDesignerUseCase = ref.read(createDesignerUseCaseProvider);
+
+        for (final draft in state.designerDrafts) {
+          final designerParams = CreateDesignerParams(
+            shopId: shop.id,
+            name: draft.name,
+            nickname: draft.nickname,
+            intro: draft.intro,
+            photoUrls: draft.photoUrls,
+          );
+
+          final designerResult = await createDesignerUseCase(designerParams);
+          designerResult.fold(
+            (_) => hasFailure = true,
+            (_) {},
+          );
+        }
+
         if (hasFailure) {
           state = state.copyWith(submitStatus: SubmitStatus.partialSuccess);
         } else {
@@ -289,6 +330,7 @@ class ShopRegistrationWizardState extends Equatable {
   final List<String> menuImages;
 
   final List<TreatmentDraft> treatmentDrafts;
+  final List<DesignerDraft> designerDrafts;
   final bool isImageUploading;
 
   const ShopRegistrationWizardState({
@@ -307,6 +349,7 @@ class ShopRegistrationWizardState extends Equatable {
     this.shopImages = const [],
     this.menuImages = const [],
     this.treatmentDrafts = const [],
+    this.designerDrafts = const [],
     this.isImageUploading = false,
   });
 
@@ -327,6 +370,7 @@ class ShopRegistrationWizardState extends Equatable {
     List<String>? shopImages,
     List<String>? menuImages,
     List<TreatmentDraft>? treatmentDrafts,
+    List<DesignerDraft>? designerDrafts,
     bool? isImageUploading,
   }) {
     return ShopRegistrationWizardState(
@@ -347,6 +391,7 @@ class ShopRegistrationWizardState extends Equatable {
       shopImages: shopImages ?? this.shopImages,
       menuImages: menuImages ?? this.menuImages,
       treatmentDrafts: treatmentDrafts ?? this.treatmentDrafts,
+      designerDrafts: designerDrafts ?? this.designerDrafts,
       isImageUploading: isImageUploading ?? this.isImageUploading,
     );
   }
@@ -368,6 +413,7 @@ class ShopRegistrationWizardState extends Equatable {
         shopImages,
         menuImages,
         treatmentDrafts,
+        designerDrafts,
         isImageUploading,
       ];
 }
