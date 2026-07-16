@@ -37,8 +37,6 @@ class _RejectReservationDialogState extends State<RejectReservationDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
-
     return GestureDetector(
       onTap: _dismissKeyboard,
       child: Container(
@@ -55,29 +53,25 @@ class _RejectReservationDialogState extends State<RejectReservationDialog> {
             ),
           ],
         ),
-        padding: EdgeInsets.only(bottom: bottomPadding),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHandle(),
-              _buildHeader(),
-              const Divider(height: 1, color: AppColors.divider),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInputSection(),
-                    const SizedBox(height: 20),
-                    _buildButtons(),
-                  ],
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHandle(),
+            _buildHeader(),
+            const Divider(height: 1, color: AppColors.divider),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInputSection(),
+                  const SizedBox(height: 20),
+                  _buildButtons(),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
