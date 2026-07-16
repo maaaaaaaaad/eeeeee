@@ -27,6 +27,8 @@ void main() {
         'shopId': 'shop-1',
         'memberId': 'member-1',
         'treatmentId': 'treatment-1',
+        'designerId': 'designer-1',
+        'designerName': '김디자이너',
         'shopName': '뷰티샵',
         'treatmentName': '젤네일',
         'treatmentPrice': 30000,
@@ -48,6 +50,8 @@ void main() {
       expect(model.shopId, 'shop-1');
       expect(model.memberId, 'member-1');
       expect(model.treatmentId, 'treatment-1');
+      expect(model.designerId, 'designer-1');
+      expect(model.designerName, '김디자이너');
       expect(model.shopName, '뷰티샵');
       expect(model.treatmentName, '젤네일');
       expect(model.treatmentPrice, 30000);
@@ -69,6 +73,8 @@ void main() {
         'shopId': 'shop-1',
         'memberId': 'member-1',
         'treatmentId': 'treatment-1',
+        'designerId': null,
+        'designerName': null,
         'shopName': null,
         'treatmentName': null,
         'treatmentPrice': null,
@@ -91,6 +97,8 @@ void main() {
       expect(model.treatmentPrice, isNull);
       expect(model.treatmentDuration, isNull);
       expect(model.memberNickname, isNull);
+      expect(model.designerId, isNull);
+      expect(model.designerName, isNull);
       expect(model.memo, isNull);
       expect(model.rejectionReason, isNull);
       expect(model.status, ReservationStatus.confirmed);
