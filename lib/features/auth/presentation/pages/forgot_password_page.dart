@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/forgot_password_provider.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/sign_up_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -94,7 +95,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '비밀번호 찾기',
