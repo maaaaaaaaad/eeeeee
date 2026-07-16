@@ -5,6 +5,8 @@ import 'package:mobile_owner/features/beautishop/presentation/providers/shop_edi
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_time_form.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ScheduleManagementPage extends ConsumerStatefulWidget {
   final BeautyShop shop;
@@ -55,7 +57,7 @@ class _ScheduleManagementPageState
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '스케줄 관리',
@@ -112,6 +114,7 @@ class _ScheduleManagementPageState
                       ),
               ),
             ),
+            const AppBottomInset(additional: 16),
           ],
         ),
       ),
