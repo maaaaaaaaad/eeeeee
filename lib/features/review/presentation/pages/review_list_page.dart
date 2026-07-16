@@ -6,6 +6,8 @@ import 'package:mobile_owner/features/review/presentation/widgets/reply_input_di
 import 'package:mobile_owner/features/review/presentation/widgets/review_card.dart';
 import 'package:mobile_owner/features/review/presentation/widgets/review_stats_header.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ReviewListPage extends ConsumerStatefulWidget {
   final String shopId;
@@ -56,7 +58,7 @@ class _ReviewListPageState extends ConsumerState<ReviewListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(reviewListNotifierProvider(widget.shopId));
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '리뷰 관리',
@@ -182,7 +184,7 @@ class _ReviewListPageState extends ConsumerState<ReviewListPage> {
   }
 
   Future<void> _showReplyDialog(String reviewId, [String? initialContent]) async {
-    final content = await showDialog<String>(
+    final content = await showAppDialog<String>(
       context: context,
       builder: (_) => ReplyInputDialog(initialContent: initialContent),
     );
@@ -201,28 +203,15 @@ class _ReviewListPageState extends ConsumerState<ReviewListPage> {
   }
 
   Future<void> _confirmDeleteReply(String reviewId) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('답글 삭제'),
-        content: const Text('답글을 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              '삭제',
-              style: TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
+      title: '답글 삭제',
+      message: '답글을 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      isDestructive: true,
     );
 
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     final success = await ref
         .read(reviewListNotifierProvider(widget.shopId).notifier)
