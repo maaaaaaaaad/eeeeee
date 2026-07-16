@@ -5,6 +5,8 @@ import 'package:mobile_owner/features/auth/presentation/providers/sign_up_provid
 import 'package:mobile_owner/features/auth/presentation/providers/withdrawal_provider.dart';
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class WithdrawalPage extends ConsumerStatefulWidget {
   const WithdrawalPage({super.key});
@@ -100,28 +102,14 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
 
   Future<void> _handleFinalSubmit() async {
     final messenger = ScaffoldMessenger.of(context);
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('정말 탈퇴하시겠어요?'),
-        content: const Text(
-          '탈퇴하면 운영 중인 샵, 예약, 리뷰가\n모두 삭제되며 복구할 수 없습니다.',
-          textAlign: TextAlign.center,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('탈퇴하기'),
-          ),
-        ],
-      ),
+      title: '정말 탈퇴하시겠어요?',
+      message: '탈퇴하면 운영 중인 샵, 예약, 리뷰가\n모두 삭제되며 복구할 수 없습니다.',
+      confirmLabel: '탈퇴하기',
+      isDestructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     final success = await ref.read(withdrawalNotifierProvider.notifier).submit();
     if (!mounted) return;
@@ -141,7 +129,7 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(withdrawalNotifierProvider);
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('회원 탈퇴'),
         centerTitle: true,
@@ -157,32 +145,32 @@ class _WithdrawalPageState extends ConsumerState<WithdrawalPage> {
           },
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            LinearProgressIndicator(
-              value: (_step + 1) / 8,
-              backgroundColor: AppColors.divider,
-            ),
-            Expanded(
+      body: Column(
+        children: [
+          LinearProgressIndicator(
+            value: (_step + 1) / 8,
+            backgroundColor: AppColors.divider,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _buildNotice(),
-                  _buildReason(state),
-                  _buildAgreements(state),
-                  _buildEmailVerification(state),
-                  _buildSmsVerification(state),
-                  _buildPassword(state),
-                  _buildConfirmText(state),
-                  _buildFinalStep(state),
-                ],
+                _buildNotice(),
+                _buildReason(state),
+                _buildAgreements(state),
+                _buildEmailVerification(state),
+                _buildSmsVerification(state),
+                _buildPassword(state),
+                _buildConfirmText(state),
+                _buildFinalStep(state),
+              ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
