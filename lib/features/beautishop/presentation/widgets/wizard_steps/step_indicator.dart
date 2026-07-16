@@ -16,6 +16,7 @@ class StepIndicator extends StatelessWidget {
     '위치',
     '영업 시간',
     '시술',
+    '디자이너',
     '설명',
     '확인',
   ];
