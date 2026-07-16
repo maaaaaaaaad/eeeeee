@@ -47,6 +47,8 @@ void main() {
       expect(reservation.treatmentPrice, isNull);
       expect(reservation.treatmentDuration, isNull);
       expect(reservation.memberNickname, isNull);
+      expect(reservation.designerId, isNull);
+      expect(reservation.designerName, isNull);
       expect(reservation.memo, isNull);
       expect(reservation.rejectionReason, isNull);
     });
@@ -57,6 +59,8 @@ void main() {
         shopId: 'shop-1',
         memberId: 'member-1',
         treatmentId: 'treatment-1',
+        designerId: 'designer-1',
+        designerName: '김디자이너',
         shopName: '뷰티샵',
         treatmentName: '젤네일',
         treatmentPrice: 30000,
@@ -77,6 +81,8 @@ void main() {
       expect(reservation.treatmentPrice, 30000);
       expect(reservation.treatmentDuration, 60);
       expect(reservation.memberNickname, '홍길동');
+      expect(reservation.designerId, 'designer-1');
+      expect(reservation.designerName, '김디자이너');
       expect(reservation.memo, '메모입니다');
     });
 
