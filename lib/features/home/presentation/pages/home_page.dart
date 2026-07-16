@@ -13,6 +13,7 @@ import 'package:mobile_owner/features/review/presentation/providers/review_tab_p
 import 'package:mobile_owner/features/review/presentation/widgets/review_tab.dart';
 import 'package:mobile_owner/features/settings/presentation/pages/settings_page.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -70,8 +71,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           setState(() => _currentIndex = 0);
         }
       },
-      child: Scaffold(
-        body: SafeArea(child: _tabs[_currentIndex]),
+      child: AppScaffold(
+        body: _tabs[_currentIndex],
         bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
