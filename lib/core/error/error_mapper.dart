@@ -49,6 +49,13 @@ class ErrorMapper {
     'TREATMENT_NOT_FOUND': '시술 정보를 찾을 수 없습니다',
     'UNAUTHORIZED_TREATMENT_ACCESS': '해당 시술에 대한 권한이 없습니다',
 
+    'INVALID_DESIGNER_NAME': '올바른 디자이너 이름을 입력해주세요',
+    'INVALID_DESIGNER_NICKNAME': '올바른 닉네임을 입력해주세요',
+    'INVALID_DESIGNER_INTRO': '디자이너 소개를 확인해주세요',
+    'INVALID_DESIGNER_PHOTOS': '사진은 최대 5장까지 등록할 수 있습니다',
+    'DESIGNER_NOT_FOUND': '디자이너 정보를 찾을 수 없습니다',
+    'UNAUTHORIZED_DESIGNER_ACCESS': '해당 디자이너에 대한 권한이 없습니다',
+
     'RESERVATION_NOT_FOUND': '예약 정보를 찾을 수 없습니다',
     'RESERVATION_TIME_CONFLICT': '해당 시간에 이미 예약이 있습니다',
     'INVALID_RESERVATION_STATUS_TRANSITION': '해당 상태로 변경할 수 없습니다',
