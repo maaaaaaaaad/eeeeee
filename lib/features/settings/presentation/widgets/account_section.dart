@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
 
 class AccountSection extends StatelessWidget {
   final VoidCallback onLogout;
@@ -56,27 +57,16 @@ class AccountSection extends StatelessWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('로그아웃'),
-        content: const Text('정말 로그아웃 하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onLogout();
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('로그아웃'),
-          ),
-        ],
-      ),
+      title: '로그아웃',
+      message: '정말 로그아웃 하시겠습니까?',
+      confirmLabel: '로그아웃',
+      isDestructive: true,
     );
+    if (confirmed) {
+      onLogout();
+    }
   }
 }
