@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
 
 class DeleteConfirmationDialog extends StatelessWidget {
   final String shopName;
@@ -7,7 +8,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
   const DeleteConfirmationDialog({super.key, required this.shopName});
 
   static Future<bool?> show(BuildContext context, {required String shopName}) {
-    return showDialog<bool>(
+    return showAppDialog<bool>(
       context: context,
       builder: (_) => DeleteConfirmationDialog(shopName: shopName),
     );
