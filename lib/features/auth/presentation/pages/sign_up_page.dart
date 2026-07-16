@@ -6,6 +6,7 @@ import 'package:mobile_owner/features/auth/presentation/widgets/sign_up_step2.da
 import 'package:mobile_owner/features/auth/presentation/widgets/sign_up_step3.dart';
 import 'package:mobile_owner/features/auth/presentation/widgets/step_indicator.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
@@ -68,7 +69,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('회원가입'),
         leading: signUpState.currentStep > 0
@@ -83,29 +84,27 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: SafeArea(
-          child: Column(
-            children: [
-              StepIndicator(
-                currentStep: signUpState.currentStep,
-                totalSteps: 3,
+        child: Column(
+          children: [
+            StepIndicator(
+              currentStep: signUpState.currentStep,
+              totalSteps: 3,
+            ),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  SignUpStep1(onNext: _onNextStep),
+                  SignUpStep2(onNext: _onNextStep),
+                  SignUpStep3(
+                    onSubmit: _onSubmit,
+                    isLoading: signUpState.isLoading,
+                  ),
+                ],
               ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    SignUpStep1(onNext: _onNextStep),
-                    SignUpStep2(onNext: _onNextStep),
-                    SignUpStep3(
-                      onSubmit: _onSubmit,
-                      isLoading: signUpState.isLoading,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
