@@ -7,6 +7,9 @@ import 'package:mobile_owner/features/beautishop/domain/usecases/delete_beautish
 import 'package:mobile_owner/features/beautishop/domain/usecases/get_beautishop_usecase.dart';
 import 'package:mobile_owner/features/beautishop/presentation/pages/shop_detail_page.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/beautishop_provider.dart';
+import 'package:mobile_owner/features/designer/domain/entities/designer.dart';
+import 'package:mobile_owner/features/designer/domain/usecases/list_designers_usecase.dart';
+import 'package:mobile_owner/features/designer/presentation/providers/designer_provider.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 import 'package:mobile_owner/features/treatment/domain/entities/treatment.dart';
 import 'package:mobile_owner/features/treatment/domain/usecases/list_treatments_usecase.dart';
@@ -20,15 +23,21 @@ class MockDeleteBeautishopUseCase extends Mock
 class MockListTreatmentsUseCase extends Mock
     implements ListTreatmentsUseCase {}
 
+class MockListDesignersUseCase extends Mock implements ListDesignersUseCase {}
+
 void main() {
   late MockGetBeautishopUseCase mockGetShop;
   late MockDeleteBeautishopUseCase mockDeleteShop;
   late MockListTreatmentsUseCase mockListTreatments;
+  late MockListDesignersUseCase mockListDesigners;
 
   setUp(() {
     mockGetShop = MockGetBeautishopUseCase();
     mockDeleteShop = MockDeleteBeautishopUseCase();
     mockListTreatments = MockListTreatmentsUseCase();
+    mockListDesigners = MockListDesignersUseCase();
+    when(() => mockListDesigners('shop-1'))
+        .thenAnswer((_) async => const Right(<Designer>[]));
   });
 
   const testShop = BeautyShop(
@@ -64,6 +73,7 @@ void main() {
         getBeautishopUseCaseProvider.overrideWithValue(mockGetShop),
         deleteBeautishopUseCaseProvider.overrideWithValue(mockDeleteShop),
         listTreatmentsUseCaseProvider.overrideWithValue(mockListTreatments),
+        listDesignersUseCaseProvider.overrideWithValue(mockListDesigners),
       ],
       child: const MaterialApp(
         home: ShopDetailPage(shopId: 'shop-1'),
