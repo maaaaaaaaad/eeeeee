@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/forgot_password_provider.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/sign_up_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
 import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
@@ -285,6 +286,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
               child: const Text('다음', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ],
+          const AppBottomInset(additional: 16),
         ],
       ),
     );
@@ -412,6 +414,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
               child: const Text('다음', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ],
+          const AppBottomInset(additional: 16),
         ],
       ),
     );
@@ -489,6 +492,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Text('비밀번호 변경', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           ),
+          const AppBottomInset(additional: 16),
         ],
       ),
     );
