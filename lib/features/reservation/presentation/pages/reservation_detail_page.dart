@@ -99,6 +99,10 @@ class ReservationDetailPage extends ConsumerWidget {
         _buildInfoRow(Icons.person_outline, reservation.memberNickname ?? '-'),
         _buildInfoRow(
             Icons.content_cut, reservation.treatmentName ?? '-'),
+        if (reservation.designerName != null &&
+            reservation.designerName!.isNotEmpty)
+          _buildInfoRow(
+              Icons.brush_outlined, '디자이너 ${reservation.designerName!}'),
         if (reservation.treatmentPrice != null)
           _buildInfoRow(Icons.payments_outlined,
               '${_formatPrice(reservation.treatmentPrice!)}원'),
