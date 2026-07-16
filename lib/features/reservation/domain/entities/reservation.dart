@@ -6,6 +6,8 @@ class Reservation extends Equatable {
   final String shopId;
   final String memberId;
   final String treatmentId;
+  final String? designerId;
+  final String? designerName;
   final String? shopName;
   final String? treatmentName;
   final int? treatmentPrice;
@@ -25,6 +27,8 @@ class Reservation extends Equatable {
     required this.shopId,
     required this.memberId,
     required this.treatmentId,
+    this.designerId,
+    this.designerName,
     this.shopName,
     this.treatmentName,
     this.treatmentPrice,
