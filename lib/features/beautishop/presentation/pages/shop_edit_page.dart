@@ -4,13 +4,23 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/core/network/api_error_handler.dart';
+import 'package:mobile_owner/features/beautishop/domain/entities/designer_draft.dart';
 import 'package:mobile_owner/features/beautishop/domain/entities/update_shop_params.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/shop_edit_provider.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/operating_time_form.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/shop_image_picker.dart';
 import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/description_step.dart';
+import 'package:mobile_owner/features/beautishop/presentation/widgets/wizard_steps/designer_draft_form.dart';
+import 'package:mobile_owner/features/designer/domain/entities/create_designer_params.dart';
+import 'package:mobile_owner/features/designer/domain/entities/designer.dart';
+import 'package:mobile_owner/features/designer/domain/entities/update_designer_params.dart';
+import 'package:mobile_owner/features/designer/presentation/providers/designer_list_provider.dart';
+import 'package:mobile_owner/features/designer/presentation/widgets/designer_card.dart';
 import 'package:mobile_owner/features/home/domain/entities/beauty_shop.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_action_bar.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class ShopEditPage extends ConsumerStatefulWidget {
   final BeautyShop shop;
@@ -78,7 +88,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '샵 수정',
@@ -185,23 +195,15 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
                   setState(() => _isMenuImagesUploading = uploading),
             ),
             const SizedBox(height: 24),
+            _buildDesignerSection(),
+            const SizedBox(height: 24),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          12,
-          20,
-          12 + MediaQuery.of(context).padding.bottom,
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.divider)),
-        ),
-        child: SizedBox(
-          width: double.infinity,
-          child: FilledButton(
+      bottomAction: AppBottomActionBar(
+        backgroundColor: Colors.white,
+        children: [
+          FilledButton(
             onPressed: state.status == ShopEditStatus.loading || _isUploading
                 ? null
                 : _onSubmit,
@@ -227,7 +229,7 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
                     ),
                   ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -244,5 +246,171 @@ class _ShopEditPageState extends ConsumerState<ShopEditPage> {
     );
 
     ref.read(shopEditNotifierProvider.notifier).update(params);
+  }
+
+  Widget _buildDesignerSection() {
+    final designerState =
+        ref.watch(designerListNotifierProvider(widget.shop.id));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                '디자이너 관리',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: _onAddDesigner,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('추가'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.accentPink,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildDesignerBody(designerState),
+      ],
+    );
+  }
+
+  Widget _buildDesignerBody(DesignerListState state) {
+    switch (state.status) {
+      case DesignerListStatus.initial:
+      case DesignerListStatus.loading:
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 24),
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.pastelPink),
+          ),
+        );
+      case DesignerListStatus.error:
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Center(
+            child: Column(
+              children: [
+                Text(
+                  state.errorMessage ?? '디자이너 목록을 불러올 수 없습니다',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => ref
+                      .read(designerListNotifierProvider(widget.shop.id)
+                          .notifier)
+                      .refresh(),
+                  child: const Text('다시 시도'),
+                ),
+              ],
+            ),
+          ),
+        );
+      case DesignerListStatus.loaded:
+        if (state.designers.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: Text(
+                '등록된 디자이너가 없습니다',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
+          );
+        }
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.designers.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final designer = state.designers[index];
+            return DesignerCard(
+              designer: designer,
+              onEdit: () => _onEditDesigner(designer),
+              onDelete: () => _onDeleteDesigner(designer),
+            );
+          },
+        );
+    }
+  }
+
+  void _onAddDesigner() {
+    DesignerDraftForm.show(
+      context: context,
+      onSave: (draft) async {
+        final params = CreateDesignerParams(
+          shopId: widget.shop.id,
+          name: draft.name,
+          nickname: draft.nickname,
+          intro: draft.intro,
+          photoUrls: draft.photoUrls,
+        );
+        final error = await ref
+            .read(designerListNotifierProvider(widget.shop.id).notifier)
+            .createDesigner(params);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error ?? '디자이너가 추가되었습니다')),
+        );
+      },
+    );
+  }
+
+  void _onEditDesigner(Designer designer) {
+    DesignerDraftForm.show(
+      context: context,
+      initial: DesignerDraft(
+        name: designer.name,
+        nickname: designer.nickname,
+        intro: designer.intro,
+        photoUrls: designer.photoUrls,
+      ),
+      onSave: (draft) async {
+        final params = UpdateDesignerParams(
+          designerId: designer.id,
+          shopId: widget.shop.id,
+          name: draft.name,
+          nickname: draft.nickname,
+          intro: draft.intro,
+          photoUrls: draft.photoUrls,
+        );
+        final error = await ref
+            .read(designerListNotifierProvider(widget.shop.id).notifier)
+            .updateDesigner(params);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error ?? '디자이너 정보가 수정되었습니다')),
+        );
+      },
+    );
+  }
+
+  Future<void> _onDeleteDesigner(Designer designer) async {
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: '디자이너 삭제',
+      message: '${designer.name} 님을 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+
+    final error = await ref
+        .read(designerListNotifierProvider(widget.shop.id).notifier)
+        .deleteDesigner(designer.id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(error ?? '디자이너가 삭제되었습니다')),
+    );
   }
 }
