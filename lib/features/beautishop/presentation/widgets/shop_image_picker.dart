@@ -6,6 +6,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_sheet.dart';
 
 class ShopImagePicker extends StatefulWidget {
   static const int defaultMaxImages = 5;
@@ -220,30 +221,28 @@ class _ShopImagePickerState extends State<ShopImagePicker>
   }
 
   void _showSourcePicker() {
-    showModalBottomSheet(
+    showAppBottomSheet<void>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('카메라로 촬영'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickAndUploadSingle(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('앨범에서 선택'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickMultipleFromGallery();
-              },
-            ),
-          ],
-        ),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('카메라로 촬영'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickAndUploadSingle(ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('앨범에서 선택'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickMultipleFromGallery();
+            },
+          ),
+        ],
       ),
     );
   }
