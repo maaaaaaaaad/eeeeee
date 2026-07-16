@@ -8,6 +8,8 @@ import 'package:mobile_owner/features/treatment/presentation/providers/treatment
 import 'package:mobile_owner/features/treatment/presentation/widgets/delete_treatment_dialog.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
 import 'package:mobile_owner/shared/utils/validators.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class TreatmentFormPage extends ConsumerStatefulWidget {
   final String shopId;
@@ -84,7 +86,7 @@ class _TreatmentFormPageState extends ConsumerState<TreatmentFormPage> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
+      child: AppScaffold(
         appBar: AppBar(
           title: Text(
             _isEditMode ? '시술 수정' : '시술 등록',
@@ -184,6 +186,7 @@ class _TreatmentFormPageState extends ConsumerState<TreatmentFormPage> {
                   ),
                 ),
               ],
+              const AppBottomInset(additional: 16),
             ],
           ),
         ),
