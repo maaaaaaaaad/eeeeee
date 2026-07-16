@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mobile_owner/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -55,31 +56,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       }
     });
 
-    return Scaffold(
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 80),
-                  _buildHeader(),
-                  const SizedBox(height: 48),
-                  _buildEmailField(),
-                  const SizedBox(height: 16),
-                  _buildPasswordField(),
-                  const SizedBox(height: 32),
-                  _buildLoginButton(authState),
-                  const SizedBox(height: 12),
-                  _buildForgotPasswordLink(),
-                  const SizedBox(height: 16),
-                  _buildSignUpLink(),
-                ],
-              ),
+    return AppScaffold(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 80),
+                _buildHeader(),
+                const SizedBox(height: 48),
+                _buildEmailField(),
+                const SizedBox(height: 16),
+                _buildPasswordField(),
+                const SizedBox(height: 32),
+                _buildLoginButton(authState),
+                const SizedBox(height: 12),
+                _buildForgotPasswordLink(),
+                const SizedBox(height: 16),
+                _buildSignUpLink(),
+              ],
             ),
           ),
         ),
