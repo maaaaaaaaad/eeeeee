@@ -7,8 +7,11 @@ import 'package:mobile_owner/features/auth/presentation/pages/withdrawal_page.da
 import 'package:mobile_owner/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile_owner/features/home/presentation/providers/home_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_inset.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/account_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/app_info_section.dart';
+import 'package:mobile_owner/features/settings/presentation/widgets/inquiry_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/legal_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/notification_section.dart';
 import 'package:mobile_owner/features/settings/presentation/widgets/profile_section.dart';
@@ -28,7 +31,7 @@ class SettingsPage extends ConsumerWidget {
     final homeState = ref.watch(homeNotifierProvider);
     final owner = homeState.owner;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '설정',
@@ -47,6 +50,8 @@ class SettingsPage extends ConsumerWidget {
           const NotificationSection(),
           const SizedBox(height: 16),
           const LegalSection(),
+          const SizedBox(height: 16),
+          const InquirySection(),
           const SizedBox(height: 16),
           const AppInfoSection(appVersion: _appVersion),
           const SizedBox(height: 32),
@@ -67,7 +72,7 @@ class SettingsPage extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const AppBottomInset(additional: 24),
         ],
       ),
     );
