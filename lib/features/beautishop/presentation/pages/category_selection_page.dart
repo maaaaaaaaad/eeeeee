@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_owner/features/beautishop/presentation/providers/category_provider.dart';
 import 'package:mobile_owner/shared/theme/app_colors.dart';
+import 'package:mobile_owner/shared/widgets/app_bottom_action_bar.dart';
+import 'package:mobile_owner/shared/widgets/app_scaffold.dart';
 
 class CategorySelectionPage extends ConsumerStatefulWidget {
   final String shopId;
@@ -49,7 +51,9 @@ class _CategorySelectionPageState extends ConsumerState<CategorySelectionPage> {
       }
     });
 
-    return Scaffold(
+    final showAction = state.status == CategoryStatus.loaded ||
+        state.status == CategoryStatus.saving;
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           '카테고리 설정',
@@ -57,12 +61,11 @@ class _CategorySelectionPageState extends ConsumerState<CategorySelectionPage> {
         ),
       ),
       body: _buildBody(state),
-      bottomNavigationBar: state.status == CategoryStatus.loaded ||
-              state.status == CategoryStatus.saving
-          ? SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: FilledButton(
+      bottomAction: showAction
+          ? AppBottomActionBar(
+              padding: const EdgeInsets.all(16),
+              children: [
+                FilledButton(
                   onPressed:
                       state.status == CategoryStatus.saving ? null : _onSave,
                   style: FilledButton.styleFrom(
@@ -87,7 +90,7 @@ class _CategorySelectionPageState extends ConsumerState<CategorySelectionPage> {
                           ),
                         ),
                 ),
-              ),
+              ],
             )
           : null,
     );
